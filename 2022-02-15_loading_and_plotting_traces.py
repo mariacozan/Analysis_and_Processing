@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+#use seaborne in the future!!
 
 #normalizing the array
 def normalise(data):
@@ -9,7 +10,7 @@ def normalise(data):
 F = np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//combined//F.npy', allow_pickle=True)
 #F_chan2 = np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//combined//F_chan2.npy', allow_pickle=True)
 Fneu = np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//combined//Fneu.npy', allow_pickle=True)
-# spks = np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//combined//spks.npy', allow_pickle=True)
+spks = np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//combined//spks.npy', allow_pickle=True)
 # stat = np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//combined//stat.npy', allow_pickle=True)
 # ops =  np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//combined//ops.npy', allow_pickle=True)
 # ops = ops.item()
@@ -27,11 +28,16 @@ subtracted= F-Fneu
 
 norm_F= normalise(F)
 
+#plot and save raw fluorescence trace, set how many cells to display
+n=10
+for i in range(1,n):
+    plt.plot(F[i])
 
-for i in range(1,10):
-   plt.plot(F[i])
+#plt.savefig('D://Suite2Pprocessedfiles//SS057//20220112//plots//n10.png')
 
-plt.savefig('D://Suite2Pprocessedfiles//SS057//20220112//plots//n10.png')
+#plot deconvolution
+# for i in range(1,10):
+#    plt.plot(spks[i])
 
 # plt.imshow(F)
 # #plt.imshow(Fneu)
