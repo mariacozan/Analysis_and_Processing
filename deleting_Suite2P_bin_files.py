@@ -8,9 +8,14 @@ Created on Fri Feb 18 16:46:53 2022
 import os
 
 #easy but a bit more time consuming
-os.remove("C://Temporary_Suite2P_output//2022-02-21//suite2p//plane4//data.bin")
-os.remove("C://Temporary_Suite2P_output//2022-02-21//suite2p//plane4//data_chan2.bin")
 
+#from C drive
+# os.remove("C://Temporary_Suite2P_output//2022-02-21//suite2p//plane0//data.bin")
+# os.remove("C://Temporary_Suite2P_output//2022-02-21//suite2p//plane0//data_chan2.bin")
+
+#from D drive
+os.remove("D://Suite2Pprocessedfiles//SS109//2022-02-21//suite2p//plane4//data.bin")
+os.remove("D://Suite2Pprocessedfiles//SS109//2022-02-21//suite2p//plane4//data_chan2.bin")
 
 
 # #directory= "D://Suite2Pprocessedfiles"
