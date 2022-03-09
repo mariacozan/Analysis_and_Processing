@@ -9,14 +9,14 @@ def normalise(data):
 
 #adjust file locations as needed, there will be the same set of data for every plane
 # F1 = np.load('D://Suite2Pprocessedfiles//Eos//2022-03-04//te2p//plane0//F.npy', allow_pickle=True)
-F1= np.load('D://Suite2Pprocessedfiles//Eos//2022-03-04//no_neuropil//512/suite2p//plane0//F.npy', allow_pickle=True)
-
-F2= np.load('D://Suite2Pprocessedfiles//Eos//2022-03-04//no_neuropil//256//suite2p//plane0//F.npy', allow_pickle=True)
+F1= np.load('D://Suite2Pprocessedfiles//Eos//2022-03-09//suite2p//plane1//F.npy', allow_pickle=True)
+F2= np.load('D://Suite2Pprocessedfiles//Eos//2022-03-04//suite2p//plane1//F.npy', allow_pickle=True)
 #F_chan2 = np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//combined//F_chan2.npy', allow_pickle=True)
-#Fneu = np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//plane1//Fneu.npy', allow_pickle=True)
+Fneu = np.load('D://Suite2Pprocessedfiles//Eos//2022-03-09//suite2p//plane1//Fneu.npy', allow_pickle=True)
+Fneu2= np.load('D://Suite2Pprocessedfiles//Eos//2022-03-04//suite2p//plane1//Fneu.npy', allow_pickle=True)
 #spks = np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//combined//spks.npy', allow_pickle=True)
 #stat = np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//combined//stat.npy', allow_pickle=True)
-#ops =  np.load('D://Suite2Pprocessedfiles//Eos//20220228//suite2p//combined//ops.npy', allow_pickle=True)
+#ops =  np.load('D://Suite2Pprocessedfiles//Hedes//2022-03-03//gratings//suite2p2//plane1//ops.npy', allow_pickle=True)
 #ops = ops.item()
 #ops =  np.load('C://Temporary_Suite2P_output//Eos//20220228//suite2p//combined//ops.npy', allow_pickle=True)
 #ops = ops.item()
@@ -36,15 +36,23 @@ F2= np.load('D://Suite2Pprocessedfiles//Eos//2022-03-04//no_neuropil//256//suite
 # #converting frames to seconds
 # fs=6
 
-ROI_256 = np.array(F1[5])
-ROI_512 = np.array(F2[21])
-
+ROI_256 = np.array(F1[0])
+#ROI_512 = np.array(F2[21])
+n=8
 
 #plotting one cell/ a few cells and comparing two analyses
 # plt.plot(F1[5], c="r")
 # plt.plot (F2[21], c="b")
-plt.plot(np.array(range(len(F1[10])))/6,F1[10], c="r")
-plt.plot(np.array(range(len(F2[0])))/7.27,F2[0], c="b")
+plt.plot(np.array(range(len(F1[n])))/7.27,F1[n], c="r")
+#plt.plot(np.array(range(len(Fneu[n])))/7.27,Fneu[n], c="magenta")
+plt.plot(np.array(range(len(F2[17])))/6,F2[17], c="blue")
+#plt.plot(np.array(range(len(Fneu[17])))/6,Fneu[17], c="turquoise")
+
+
+
+plt.xlabel("Time(s)")
+plt.ylabel("Flurescence Intensity")
+#plt.plot(np.array(range(len(F2[0])))/7.27,F2[0], c="b")
 
 # x_256= np.array(range(len(F1[5])))/3
 #sns.relplot(data=np.transpose(F), kind="line", height=5,legend=None, aspect=2)
