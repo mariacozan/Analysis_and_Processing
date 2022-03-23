@@ -11,9 +11,9 @@ import numpy as np
 animal=  'Hedes'
 date= '2022-03-17'
 #note: if experiment type not known, put 'suite2p' instead
-experiment= 'SparseNoise'
+experiment= 'suite2p'
 
-filePath='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//2022-03-17data//'+experiment+ '//plane1//ops.npy'
+filePath='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane1//ops.npy'
 
 ops =  np.load(filePath, allow_pickle=True)
 ops = ops.item()

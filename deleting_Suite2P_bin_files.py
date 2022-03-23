@@ -14,8 +14,16 @@ import os
 # os.remove("C://Temporary_Suite2P_output//2022-02-21//suite2p//plane0//data_chan2.bin")
 
 #from D drive
-os.remove("D://Suite2Pprocessedfiles//SS109//2022-02-23//suite2pa//plane4//data.bin")
-os.remove("D://Suite2Pprocessedfiles//SS109//2022-02-23//suite2pa//plane4//data_chan2.bin")
+animal=  'Glaucus'
+date= '2022-03-08'
+#note: if experiment type not known, put 'suite2p' instead
+experiment= 'suite2p'
+plane_number= '4'
+
+filePath='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//1//'+experiment+ '//plane'+plane_number+'//data.bin'
+os.remove(filePath)
+
+#os.remove("D://Suite2Pprocessedfiles//SS109//2022-02-23//suite2pa//plane4//data_chan2.bin")
 
 
 # #directory= "D://Suite2Pprocessedfiles"
