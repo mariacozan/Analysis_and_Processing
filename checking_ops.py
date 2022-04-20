@@ -8,7 +8,7 @@ Created on Tue Mar 22 16:07:57 2022
 import numpy as np
 
 #checking the ops details of files
-animal=  'Hedes'
+animal=  'Glaucus'
 date= '2022-03-17'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= 'suite2p'
