@@ -28,6 +28,7 @@ Z= np.argmax(gaussian_filter1d(zcorr.T.copy(), 2, axis=1), axis=1)
 
 
 fig, axs = plt.subplots(F.shape[0]+1, sharex=True)
+
 for i in range(F.shape[0]):
     
     axs[i].plot(F[i], c="b")
@@ -36,5 +37,9 @@ for i in range(F.shape[0]):
 
 axs[-1].plot(Z, c="turquoise")
 
+for ax in axs.flat:
+    ax.label_outer()
+# axs.set_xlabel('frames')
+# axs.set_title('Fluroescence traces +Neuropil and Z movement')
 
     
