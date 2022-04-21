@@ -31,11 +31,11 @@ fig, axs = plt.subplots(F.shape[0]+1, sharex=True)
 
 for i in range(F.shape[0]):
     
-    axs[i].plot(F[i], c="b")
+    axs[i].plot(F[i], c="green")
     axs[i].plot(Fneu[i], c="magenta")
 
 
-axs[-1].plot(Z, c="turquoise")
+axs[-1].plot(Z, c="blue")
 
 for ax in axs.flat:
     ax.label_outer()

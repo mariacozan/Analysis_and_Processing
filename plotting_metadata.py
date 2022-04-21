@@ -10,7 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 path= 'Z:/RawData/Hedes/2022-03-14/1/NiDaqInput0.bin'
 
-def GetMetadataChannels(niDaqFilePath, numChannels = 7):
+def GetMetadataChannels(niDaqFilePath, numChannels = 4):
     """
     
 
@@ -33,22 +33,68 @@ def GetMetadataChannels(niDaqFilePath, numChannels = 7):
 
 meta= GetMetadataChannels(path, numChannels=7)
 tmeta= meta.T
- 
-fig, axs = plt.subplots(4)
-axs[0].plot(tmeta[0, 0:60000])
-axs[1].plot(tmeta[1, 0:60000])
-axs[2].plot(tmeta[2, 0:60000])
-axs[3].plot(tmeta[3, 0:60000])
-
+#plotting for  
+fig, axs = plt.subplots(7)
+axs[0].plot(tmeta[0, 50000:52000])
+axs[0].title.set_text("Photodiode")
+axs[1].plot(tmeta[1, 50000:52000])
+axs[1].title.set_text("Frame Clock")
+axs[2].plot(tmeta[2, 50000:52000])
+axs[2].title.set_text("Pockel feedback")
+axs[3].plot(tmeta[3, 50000:52000])
+axs[3].title.set_text("Piezo")
+axs[4].plot(tmeta[4, 50000:52000])
+axs[4].title.set_text("Wheel-F")
+axs[5].plot(tmeta[5, 50000:52000])
+axs[5].title.set_text("Wheel-B")
+axs[6].plot(tmeta[6, 50000:52000])
+axs[6].title.set_text("Camera")
 for ax in axs.flat:
     ax.label_outer()
+    
+fig, axs = plt.subplots(7, squeeze=True)
+axs[0].plot(tmeta[0, 14500:15000])
+axs[0].title.set_text("Photodiode")
+axs[1].plot(tmeta[1, 14500:15000])
+axs[1].title.set_text("Frame Clock")
+axs[2].plot(tmeta[2, 14500:15000])
+axs[2].title.set_text("Pockel feedback")
+axs[3].plot(tmeta[3, 14500:15000])
+axs[3].title.set_text("Piezo")
+axs[4].plot(tmeta[4, 14500:15000])
+axs[4].title.set_text("Wheel-F")
+axs[5].plot(tmeta[5, 14500:15000])
+axs[5].title.set_text("Wheel-B")
+axs[6].plot(tmeta[6, 14500:15000])
+axs[6].title.set_text("Camera")
+for ax in axs.flat:
+    ax.label_outer()
+    
+#plt.imsave("'Z:/RawData/Hedes/2022-03-14/1/metadata_2seconds.png", )
+
+# fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
+
+# for i in range(tmeta.shape[0]):
+    
+#     axs[i].plot(tmeta[i,50000:52000], c="b")
+    
+    
+# fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
+
+# for i in range(tmeta.shape[0]):
+    
+#     axs[i].plot(tmeta[i,14500:15000], c="b")
+   
+   
 
 """
-Questions:
-    sampling rate still 1000/s?
-    which rows correspond to which input?
+
     1:Photodiode
     2:FrameClock
     3:Pockel feedback
     4:Piezo
+    5:wheel-F
+    6:Wheel-B
+    7:Camera
 """
+
