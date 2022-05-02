@@ -16,7 +16,7 @@ def normalise(data):
 # Fneu2= np.load('D://Suite2Pprocessedfiles//Eos//2022-03-04//suite2p//plane1//Fneu.npy', allow_pickle=True)
 # spks = np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//combined//spks.npy', allow_pickle=True)
 #stat = np.load('D://Suite2Pprocessedfiles//SS057//20220112//suite2p//combined//stat.npy', allow_pickle=True)
-ops =  np.load('D://Suite2Pprocessedfiles//Hedes//2022-03-17//2022-03-17data//suite2p//plane1//ops.npy', allow_pickle=True)
+ops =  np.load('D://Suite2Pprocessedfiles//Glaucus//2022-03-28data//suite2p//plane2//ops.npy', allow_pickle=True)
 ops = ops.item()
 #ops =  np.load('C://Temporary_Suite2P_output//Eos//20220228//suite2p//combined//ops.npy', allow_pickle=True)
 #ops = ops.item()
@@ -36,23 +36,23 @@ ops = ops.item()
 # #converting frames to seconds
 # fs=6
 
-ROI_256 = np.array(F1[0])
-#ROI_512 = np.array(F2[21])
-n=8
+# ROI_256 = np.array(F1[0])
+# #ROI_512 = np.array(F2[21])
+# n=8
 
-#plotting one cell/ a few cells and comparing two analyses
-# plt.plot(F1[5], c="r")
-# plt.plot (F2[21], c="b")
-plt.plot(np.array(range(len(F1[n])))/7.27,F1[n], c="r")
-#plt.plot(np.array(range(len(Fneu[n])))/7.27,Fneu[n], c="magenta")
-plt.plot(np.array(range(len(F2[17])))/6,F2[17], c="blue")
-#plt.plot(np.array(range(len(Fneu[17])))/6,Fneu[17], c="turquoise")
+# #plotting one cell/ a few cells and comparing two analyses
+# # plt.plot(F1[5], c="r")
+# # plt.plot (F2[21], c="b")
+# plt.plot(np.array(range(len(F1[n])))/7.27,F1[n], c="r")
+# #plt.plot(np.array(range(len(Fneu[n])))/7.27,Fneu[n], c="magenta")
+# plt.plot(np.array(range(len(F2[17])))/6,F2[17], c="blue")
+# #plt.plot(np.array(range(len(Fneu[17])))/6,Fneu[17], c="turquoise")
 
 
 
-plt.xlabel("Time(s)")
-plt.ylabel("Flurescence Intensity")
-#plt.plot(np.array(range(len(F2[0])))/7.27,F2[0], c="b")
+# plt.xlabel("Time(s)")
+# plt.ylabel("Flurescence Intensity")
+# #plt.plot(np.array(range(len(F2[0])))/7.27,F2[0], c="b")
 
 # x_256= np.array(range(len(F1[5])))/3
 #sns.relplot(data=np.transpose(F), kind="line", height=5,legend=None, aspect=2)
