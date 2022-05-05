@@ -64,4 +64,4 @@ out_first10 = sr.register_transform_stack(img0, reference='first', n_frames=10)
 # the first 10 images and transform the original image (not the moving average)
 out_moving10 = sr.register_transform_stack(img0, reference='first', n_frames=10, moving_average = 10)
 
-save_image(path="D://Tiff_stacks//Hedes//2022-03-23//meanreg_file_00003_00001.tif", img=out_mean)
+save_image(path="D://Tiff_stacks//Hedes//2022-03-30//meanreg_file_00005_00001.tif", img=out_mean)

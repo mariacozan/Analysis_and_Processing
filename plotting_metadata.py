@@ -8,7 +8,7 @@ Created on Wed Apr 20 14:49:39 2022
 
 import numpy as np
 import matplotlib.pyplot as plt
-path= 'Z:/RawData/Glaucus/2022-04-28/1/NiDaqInput0.bin'
+path= 'Z:/RawData/Eos/2022-05-04/1/NiDaqInput0.bin'
 
 def GetMetadataChannels(niDaqFilePath, numChannels = 4):
     """
@@ -71,28 +71,28 @@ tmeta= meta.T
 #     ax.label_outer()
 
 #plotting for 4 channels with titles
-fig, axs = plt.subplots(4)
-axs[0].plot(tmeta[0, 50000:52000])
-axs[0].title.set_text("Photodiode")
-axs[1].plot(tmeta[1, 50000:52000])
-axs[1].title.set_text("Frame Clock")
-axs[2].plot(tmeta[2, 50000:52000])
-axs[2].title.set_text("Pockel feedback")
-axs[3].plot(tmeta[3, 50000:52000])
-axs[3].title.set_text("Piezo")
+# fig, axs = plt.subplots(4)
+# axs[0].plot(tmeta[0, 50000:52000])
+# axs[0].title.set_text("Photodiode")
+# axs[1].plot(tmeta[1, 50000:52000])
+# axs[1].title.set_text("Frame Clock")
+# axs[2].plot(tmeta[2, 50000:52000])
+# axs[2].title.set_text("Pockel feedback")
+# axs[3].plot(tmeta[3, 50000:52000])
+# axs[3].title.set_text("Piezo")
 
-for ax in axs.flat:
-    ax.label_outer()
+# for ax in axs.flat:
+#     ax.label_outer()
     
-fig, axs = plt.subplots(4, squeeze=True)
-axs[0].plot(tmeta[0, 14500:15000])
-axs[0].title.set_text("Photodiode")
-axs[1].plot(tmeta[1, 14500:15000])
-axs[1].title.set_text("Frame Clock")
-axs[2].plot(tmeta[2, 14500:15000])
-axs[2].title.set_text("Pockel feedback")
-axs[3].plot(tmeta[3, 14500:15000])
-axs[3].title.set_text("Piezo")
+# fig, axs = plt.subplots(4, squeeze=True)
+# axs[0].plot(tmeta[0, 14500:15000])
+# axs[0].title.set_text("Photodiode")
+# axs[1].plot(tmeta[1, 14500:15000])
+# axs[1].title.set_text("Frame Clock")
+# axs[2].plot(tmeta[2, 14500:15000])
+# axs[2].title.set_text("Pockel feedback")
+# axs[3].plot(tmeta[3, 14500:15000])
+# axs[3].title.set_text("Piezo")
 
 # for ax in axs.flat:
 #     ax.label_outer()
@@ -100,18 +100,18 @@ axs[3].title.set_text("Piezo")
 
 #more optimised code for plotting for any number of channels
 
-# fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
+fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
 
-# for i in range(tmeta.shape[0]):
+for i in range(tmeta.shape[0]):
     
-#     axs[i].plot(tmeta[i,50000:52000], c="b")
+    axs[i].plot(tmeta[i,0:15000], c="b")
     
     
-# fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
+fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
 
-# for i in range(tmeta.shape[0]):
+for i in range(tmeta.shape[0]):
     
-#     axs[i].plot(tmeta[i,14500:15000], c="b")
+    axs[i].plot(tmeta[i,14500:15000], c="b")
    
    
 
