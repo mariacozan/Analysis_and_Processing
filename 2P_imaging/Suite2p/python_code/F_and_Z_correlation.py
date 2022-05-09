@@ -46,14 +46,25 @@ def z_trace(opspath):
     Z= np.argmax(gaussian_filter1d(zcorr.T.copy(), 2, axis=1), axis=1)
     return Z
 
-path='D://Suite2Pprocessedfiles//Hedes//2022-03-24//suite2p//plane1//ops.npy'
+#from D drive
+animal=  'Hedes'
+date= '2022-03-30'
+#note: if experiment type not known, put 'suite2p' instead
+experiment= 'suite2p'
+plane_number= '1'
+
+filePathops='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'//ops.npy'
+filePathF='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'//F.npy'
+filePathFneu='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'//Fneu.npy'
 
 
-F= np.load('D://Suite2Pprocessedfiles//Hedes//2022-03-24//suite2p//plane1//F.npy', allow_pickle=True)
-Fneu = np.load('D://Suite2Pprocessedfiles//Hedes//2022-03-24//suite2p//plane1//Fneu.npy', allow_pickle=True)
 
 
-Ztrace= z_trace(opspath=path)
+F= np.load(filePathF, allow_pickle=True)
+Fneu = np.load(filePathFneu, allow_pickle=True)
+
+
+Ztrace= z_trace(opspath=filePathops)
 FandZ= np.stack((Ztrace, F[0]))
 
 #calculating the spearman's correlation (has to be non-parametric because discrete data) between the Z trace and the fluorescence
@@ -94,7 +105,9 @@ r= "r="+corr_number+"."
 plt.scatter(Ztrace, F[n])
 plt.text(np.mean(Ztrace),max_F+max10p_F, r, fontsize= 10)
 
+#save all the plots as pngs so it's easy to check them
 
+#do ANOVA analysis on these
 
 
 

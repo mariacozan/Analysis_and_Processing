@@ -23,77 +23,87 @@ def save_image(path, img, **kwargs):
         io.imsave(path, img)
         print("Image stack saved to {}".format(path))
         
-def registration(stack, **kwargs):
+def registration(stack, reference='first'):
+    """
+    https://pypi.org/project/pystackreg/
+    Note that this function performs TRANSLATION transformation (proven to work best)
+    other types of transformation: RIGID_BODY, SCALED_ROTATION, AFFINE, BILINEAR
+
+    Parameters
+    ----------
+    stack : array
+    the unregistered array
+    
+    reference : string
+    what kind of reference image to use, options:
+        - first (default, proven to work best)
+        - previous
+        - mean
+
+    Returns
+    -------
+    reg : array
+        registered array
+
+    """
     sr = StackReg(StackReg.TRANSLATION)
     reg= sr.register_transform_stack(stack, reference='first')
     return reg
 
 
-dim4 = np.full((101,10,512,512), 0)
-
-    
-dim3=np.full((10,5,5), 1)
-dim3b= np.full((10,5,5), 2)
-combined= np.vstack((dim3, dim3b))
-
 
 """
-registering 10 planes, then moving on to the next 10:
-    - convert 4d array to 3d array of all the planes in sequence
-    - loop through 10 stacked 3d array
-    - do registration on these
-    - create separate tiffs for the 10 samples
-    - combine into one big tiff again
+plan: registering 10 planes, then moving on to the next 10
+end result: one registered tiff file 
+-->if input has format (a, b, c, d) where
+a = planes
+b = samples per plane
+c = x resolution
+d = y resolution
+
+code will return a registred z stack with the format  (a, b, c) where 
+a = planes
+b = x resolution
+c = y resolution
+
+How it does it:
+    - reads tiff into an array
+    - goes through each plane with its b amount of samples iteratively using a for loop
+    - does the registration for these samples using the PyStackReg function
+    - gets the mean from these registred samples
+    - appends these into another array of shape (planes, x resolution, y resolution)
 
 """
+#specifying the paths
+drive= 'D://Tiff_stacks'
+animal=  'Hedes'
+date= '2022-03-30'
+unreg_name= 'file_00005_00001'
+
+filePath=drive+'//'+animal+ '//'+date+ '//'+unreg_name+'.tif'
+
+
+reg_stack_name= "reg_z-stack"
+path_reg= filePath+ reg_stack_name
+
+
+
 #reading the tif
-path= "D://Tiff_stacks//Eos//2022-05-04//file_00005_00001.tif"
-TIF= skimage.io.imread(path)
+TIF= skimage.io.imread(filePath)
 #then converting TIF into structured array
 image = np.array(TIF)
 
-#converting 4d array into 3d for easier manipulation
-combined_stack= np.vstack(image)
-#confirm data type
-print(combined_stack.shape)
 
-
-#example of one plane
-# split_stack= combined_stack[500:510,:, :]
-
-# reg_50= out_first(stack=split_stack)
-# reg_50_mean= np.mean(reg_50, axis=0)
-
-#split all the stacks per plane into a list
-split_stacks= np.array_split(combined_stack, 101)
-
-"""
-- create for loop which iterates through the split_stacks list, maybe need to change it from a different format (something that can be changed?)
-- does the registration,
-- does a Z project thing on it (i.e. gets the mean image) -->averaging over Z
-- and saves each element as a list of arrays (here, should give 101 elements)
-- these are then combined into one array (use np.stack?)
-- then save this as a tif
-
-"""
 #loop to create the registered arrays with the out_first function that I created based on the module pystackreg
-reg_arrays=[]
-meanreg_arrays=[]
-for array in split_stacks:
-    reg_arrays= registration(array)
-    meanreg_arrays.append(np.mean(reg_arrays, axis=0))
-    
-all_planes= np.stack(meanreg_arrays)
-save_image(path= "D://Tiff_stacks//Eos//2022-05-04//reg_stack_test.tif", img=all_planes)
-    
-    
+planes = image.shape[0]
+resolutionx = image.shape[2]
+resolutiony= image.shape[3]
+meanreg_arrays=np.zeros((planes, resolutionx, resolutiony))
+
+for i in range(image.shape[0]):
+    reg_arrays = registration(image[i,:,:,:])
+    meanreg_arrays[i,:,:] = np.mean(reg_arrays, axis=0)
 
 
-
-# path= "D://Tiff_stacks//Hedes//2022-03-23//split_stacks//test//fromarray.tif"
-# # for element in split_stacks:
-# # 3 dimensions : frames x width x height
-# sr = StackReg(StackReg.TRANSLATION)
-# # register to mean image
-# out_first = sr.register_transform_stack(split_stack, reference='first')
-# save_image(path=path, img=out_first)  
+#save the registered array as a tiff
+save_image(path= path_reg, img=meanreg_arrays)
