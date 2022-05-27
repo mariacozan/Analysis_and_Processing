@@ -82,6 +82,7 @@ for ROI,coeff in enumerate(corr_list):
         
 #choose ROI
 n=20
+n_str= str(n)
 
 # fig, axs = plt.subplots(3, sharex=True)
 
@@ -102,15 +103,22 @@ max_F= np.amax(F[n])
 max10p_F=np.amax(F[n])/9
 corr_number= str(corr_list[n])
 r= "r="+corr_number+"."
-plt.scatter(Ztrace, F[n])
+scatterplot = plt.scatter(Ztrace, F[n])
 plt.text(np.mean(Ztrace),max_F+max10p_F, r, fontsize= 10)
 
+
+
 #save all the plots as pngs so it's easy to check them
-
+# create folder for animal and date etc
+#filePathplot= filePathops='D://Z-analysis//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'.png'
+filePathplot= 'D://Z-analysis//ROI'+n_str+'.png'
+plt.savefig(filePathplot)
 #do ANOVA analysis on these
+#ANOVA= sp.kruskal()
 
-
-
+# for ROI in range(F.shape[0]):
+#     scatterplot= plt.scatter(Ztrace, F[n])
+#     plt.savefig(filePathplot)
 
         
    
