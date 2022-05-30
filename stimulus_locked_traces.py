@@ -13,6 +13,7 @@ Plan for stimulus locked trace:
     4. take for ex 50 frames before and 50 frames after the stim and plot this
     5. now check the csv file with the stim identity info
     6. group traces for one type of stimulus, then average these responses for the response to same stim for same neuron
+    (use a general linear model??)
     
 """
 
@@ -99,6 +100,6 @@ def DetectPhotodiodeChanges(photodiode,plot=False,lowPass=30,kernel = 101,fs=100
     return crossings
 
 meta= GetMetadataChannels(path, numChannels=4)
-tmeta= meta.T
-photodiode= tmeta[0]
-crossings= photodiode(photodiode)
+# tmeta= meta.T
+# photodiode1= tmeta[0]
+# crossings= photodiode(photodiode1)

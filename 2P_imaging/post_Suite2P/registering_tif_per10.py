@@ -77,15 +77,15 @@ How it does it:
 #specifying the paths
 drive= 'D://Tiff_stacks'
 animal=  'Hedes'
-date= '2022-03-30'
-unreg_name= 'file_00005_00001'
+date= '2022-03-23'
+#note that the file number can change
+unreg_name= 'file_00003_00001'
+reg_name= 'reg_z-stack'
 
 filePath=drive+'//'+animal+ '//'+date+ '//'+unreg_name+'.tif'
 
-
-reg_stack_name= "reg_z-stack"
-path_reg= filePath+ reg_stack_name
-
+#filePath-reg= drive+'//'+animal+ '//'+date+ '//'+reg_name+'.tif'
+filePathreg= "D://Tiff_stacks//Hedes//2022-03-23//reg_stack.tif"
 
 
 #reading the tif
@@ -106,4 +106,4 @@ for i in range(image.shape[0]):
 
 
 #save the registered array as a tiff
-save_image(path= path_reg, img=meanreg_arrays)
+save_image(path= filePathreg, img=meanreg_arrays)
