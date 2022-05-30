@@ -8,6 +8,17 @@ Created on Wed Apr 20 14:49:39 2022
 
 import numpy as np
 import matplotlib.pyplot as plt
+
+#defining path
+animal=  'Hedes'
+date= '2022-03-30'
+#note: if experiment type not known, put 'suite2p' instead
+experiment= '1'
+NiDaqInput= 'NiDaqInput0'
+
+filePathInput='Z://RawData//'+animal+ '//'+date+ '//'+experiment+ '//'+NiDaqInput+'.bin'
+#need to add custom titles for plots
+filePathOutput= 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+ '//metadata2s.png'
 path= 'Z:/RawData/Eos/2022-05-04/1/NiDaqInput0.bin'
 
 def GetMetadataChannels(niDaqFilePath, numChannels = 4):
@@ -112,7 +123,8 @@ fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
 for i in range(tmeta.shape[0]):
     
     axs[i].plot(tmeta[i,14500:15000], c="b")
-   
+
+plt.savefig("")
    
 
 """
