@@ -8,8 +8,8 @@ Created on Tue Mar 22 16:07:57 2022
 import numpy as np
 
 #checking the ops details of files
-animal=  'Glaucus'
-date= '2022-03-17'
+animal=  'Hedes'
+date= '2022-03-30'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= 'suite2p'
 
@@ -21,3 +21,4 @@ ops = ops.item()
 #printing data path to know which data was analysed
 key_list = list(ops.values())
 print(key_list[88])
+print("frames per folder:",ops["frames_per_folder"])

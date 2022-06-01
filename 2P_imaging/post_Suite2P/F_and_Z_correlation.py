@@ -48,7 +48,7 @@ def z_trace(opspath):
 
 #from D drive
 animal=  'Hedes'
-date= '2022-03-30'
+date= '2022-03-14'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= 'suite2p'
 plane_number= '1'
@@ -81,7 +81,7 @@ for ROI,coeff in enumerate(corr_list):
         correlated.append(ROI)
         
 #choose ROI
-n=20
+n=0
 n_str= str(n)
 
 # fig, axs = plt.subplots(3, sharex=True)
@@ -111,7 +111,7 @@ plt.text(np.mean(Ztrace),max_F+max10p_F, r, fontsize= 10)
 #save all the plots as pngs so it's easy to check them
 # create folder for animal and date etc
 #filePathplot= filePathops='D://Z-analysis//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'.png'
-filePathplot= 'D://Z-analysis//ROI'+n_str+'.png'
+filePathplot= 'D://Z-analysis//'+animal+ '//'+date+ '//ROI'+n_str+'.png'
 plt.savefig(filePathplot)
 #do ANOVA analysis on these
 #ANOVA= sp.kruskal()
