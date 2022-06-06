@@ -48,7 +48,7 @@ def z_trace(opspath):
 
 #from D drive
 animal=  'Hedes'
-date= '2022-03-14'
+date= '2022-03-23'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= 'suite2p'
 plane_number= '1'
