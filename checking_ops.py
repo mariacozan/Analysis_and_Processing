@@ -9,7 +9,7 @@ import numpy as np
 
 #checking the ops details of files
 animal=  'Hedes'
-date= '2022-03-30'
+date= '2022-03-23'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= 'suite2p'
 

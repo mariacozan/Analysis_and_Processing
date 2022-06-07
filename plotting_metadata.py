@@ -124,7 +124,7 @@ for i in range(tmeta.shape[0]):
     
     axs[i].plot(tmeta[i,14500:15000], c="b")
 
-plt.savefig("")
+# plt.savefig("")
    
 
 """

@@ -47,8 +47,8 @@ def z_trace(opspath):
     return Z
 
 #from D drive
-animal=  'Hedes'
-date= '2022-03-23'
+animal=  'Eos'
+date= '2022-05-04'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= 'suite2p'
 plane_number= '1'
@@ -81,7 +81,7 @@ for ROI,coeff in enumerate(corr_list):
         correlated.append(ROI)
         
 #choose ROI
-n=0
+n=21
 n_str= str(n)
 
 # fig, axs = plt.subplots(3, sharex=True)
@@ -97,14 +97,23 @@ n_str= str(n)
 
 #determine location of the inset depending on max F
 
+fig = plt.figure()
+plt.scatter(Ztrace, F[n])
 
+plt.xlabel('distance from surface(um)', fontsize=20)
+plt.ylabel('Raw fluorescence intensity', fontsize=20)
+plt.rc('xtick',labelsize=15)
+plt.rc('ytick', labelsize=20)
+filePathplot= 'D://Z-analysis//'+animal+ '//'+date+ '//ROI'+n_str+'.png'
+fig.savefig(filePathplot)
 
-max_F= np.amax(F[n])
-max10p_F=np.amax(F[n])/9
-corr_number= str(corr_list[n])
-r= "r="+corr_number+"."
-scatterplot = plt.scatter(Ztrace, F[n])
-plt.text(np.mean(Ztrace),max_F+max10p_F, r, fontsize= 10)
+# max_F= np.amax(F[n])
+# max10p_F=np.amax(F[n])/9
+# corr_number= str(corr_list[n])
+# r= "r="+corr_number+"."
+# scatterplot = plt.scatter(Ztrace, F[n])
+
+#plt.text(np.mean(Ztrace),max_F+max10p_F, r, fontsize= 10)
 
 
 
@@ -112,7 +121,7 @@ plt.text(np.mean(Ztrace),max_F+max10p_F, r, fontsize= 10)
 # create folder for animal and date etc
 #filePathplot= filePathops='D://Z-analysis//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'.png'
 filePathplot= 'D://Z-analysis//'+animal+ '//'+date+ '//ROI'+n_str+'.png'
-plt.savefig(filePathplot)
+#plt.savefig(filePathplot)
 #do ANOVA analysis on these
 #ANOVA= sp.kruskal()
 
