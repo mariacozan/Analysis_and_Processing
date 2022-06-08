@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter1d
 
 #from D drive
-animal=  'Eos'
-date= '2022-05-04'
+animal=  'Hedes'
+date= '2022-03-30'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= 'suite2p'
 plane_number= '1'
@@ -56,7 +56,7 @@ Z= Z.astype(float)
 #plotting 1 ROI
 fig, axs = plt.subplots(3, sharex=True)
 #choose ROI
-n=21
+n=60
 n_str= str(n)
 axs[0].plot(np.array(range(len(F[n])))/6, Z, c="blue")   
 axs[0].set_ylabel('distance(um)', fontsize= 12)
@@ -77,7 +77,7 @@ ax.set_xlabel('Time(s)', fontsize= 16)
 
 
 filePathplot= 'D://Z-analysis//'+animal+ '//'+date+ '//trace_plot_for_ROI'+n_str+'.png'
-#plt.savefig(filePathplot)
+plt.savefig(filePathplot)
 
     
 

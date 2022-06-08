@@ -47,11 +47,11 @@ def z_trace(opspath):
     return Z
 
 #from D drive
-animal=  'Eos'
-date= '2022-05-04'
+animal=  'Hedes'
+date= '2022-03-23'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= 'suite2p'
-plane_number= '1'
+plane_number= '2'
 
 filePathops='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'//ops.npy'
 filePathF='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'//F.npy'
@@ -101,11 +101,12 @@ fig = plt.figure()
 plt.scatter(Ztrace, F[n])
 
 plt.xlabel('distance from surface(um)', fontsize=20)
-plt.ylabel('Raw fluorescence intensity', fontsize=20)
-plt.rc('xtick',labelsize=15)
+plt.ylabel('Raw fluorescence intensity', fontsize=18)
+plt.rc('xtick',labelsize=20)
 plt.rc('ytick', labelsize=20)
-filePathplot= 'D://Z-analysis//'+animal+ '//'+date+ '//ROI'+n_str+'.png'
-fig.savefig(filePathplot)
+
+filePathplot= 'D://Z-analysis//'+animal+ '//'+date+ '//plane'+plane_number+'ROI'+n_str+'.png'
+fig.savefig(filePathplot, pad_inches=0.01)
 
 # max_F= np.amax(F[n])
 # max10p_F=np.amax(F[n])/9
