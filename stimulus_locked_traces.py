@@ -197,7 +197,10 @@ signal_exp1 = np.float64(signal[:,0:exp[0]])
 ROI= 0
 signal_exp1_perROI = signal_exp1[ROI, :]
 
-
+"""
+defining the window for the stimulus
+"""
+window= [-0.5, 2]
 
 #Liad's code for aligning stim
 def AlignStim(signal, time, eventTimes, window,timeUnit=1,timeLimit=1):
@@ -252,6 +255,6 @@ def AlignStim(signal, time, eventTimes, window,timeUnit=1,timeLimit=1):
         aligned[alignRange[valid],ev,:] = signal[sigRange[valid],:];
     return aligned, t
 
-AlignStim(signal= signal, time= frame_clock, eventTimes= photodiode_change, window= ???)
+AlignStim(signal= signal, time= frame_clock, eventTimes= photodiode_change, window= window)
 
 #window is an array like (-0.5s to -.5 secs)
