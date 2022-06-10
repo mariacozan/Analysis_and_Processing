@@ -22,7 +22,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 import scipy as sp
 from scipy.signal import butter,filtfilt,medfilt
-path= 'Z:/RawData/Hedes/2022-03-23/1/NiDaqInput0.bin'
+
+
+"""
+getting the signal, for now using the raw F
+"""
+animal=  'Hedes'
+date= '2022-03-23'
+#note: if experiment type not known, put 'suite2p' instead
+experiment= '1'
+plane_number= '1'
+
+filePathF='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//suite2p//plane'+plane_number+'//F.npy'
+filePathops= 'D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//suite2p//plane'+plane_number+'//ops.npy'
+filePathmeta= 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//NiDaqInput0.bin'
+signal= np.load(filePathF, allow_pickle=True)
+
 
 def GetMetadataChannels(niDaqFilePath, numChannels = 7):
     """
@@ -103,104 +118,140 @@ def DetectPhotodiodeChanges(photodiode,plot=False,lowPass=30,kernel = 101,fs=100
     
     return crossings
 
-meta = GetMetadataChannels(path, numChannels=4)
+meta = GetMetadataChannels(filePathmeta, numChannels=4)
 #plotting metadata
-tmeta= meta.T
-fig, axs = plt.subplots(4, squeeze=True)
-axs[0].plot(tmeta[0, 14500:15000])
-axs[0].title.set_text("Photodiode")
-axs[1].plot(tmeta[1, 14500:15000])
-axs[1].title.set_text("Frame Clock")
-axs[2].plot(tmeta[2, 14500:15000])
-axs[2].title.set_text("Pockel feedback")
-axs[3].plot(tmeta[3, 14500:15000])
-axs[3].title.set_text("Piezo")
+# tmeta= meta.T
+# fig, axs = plt.subplots(4, squeeze=True)
+# axs[0].plot(tmeta[0, 14500:15000])
+# axs[0].title.set_text("Photodiode")
+# axs[1].plot(tmeta[1, 14500:15000])
+# axs[1].title.set_text("Frame Clock")
+# axs[2].plot(tmeta[2, 14500:15000])
+# axs[2].title.set_text("Pockel feedback")
+# axs[3].plot(tmeta[3, 14500:15000])
+# axs[3].title.set_text("Piezo")
 
-for ax in axs.flat:
-    ax.label_outer()
+# for ax in axs.flat:
+#     ax.label_outer()
     
 
 
 """
-gives when the photodiode went from on to off, so at the onset of the stimulus?
+1.Step: get the times when the stimulus appeared so when the photodiode went from on to off
 """
-# photodiode = meta[:,0]
-# photodiode_change = DetectPhotodiodeChanges(photodiode,plot=False,lowPass=30,kernel = 101,fs=1000, waitTime=5000)
+photodiode = meta[:,0]
+photodiode_change = DetectPhotodiodeChanges(photodiode,plot=False,lowPass=30,kernel = 101,fs=1000, waitTime=5000)
 
 """
-getting the frame clock data and checking which number corresponds to the photodiode change, 
-although probably enough to just use the photodiode since they are aligned well (onset of stim coincides with frame onset)
+2.Step: get stim onset time as frame number
+output from 1. gives a matrix with the time at which stim. appeared, but this is at a sampling rate of 1000Hz so need to divide values by 1000
 """
+#photodiode change= pdc
+pdc_secs= photodiode_change/1000
+#this value should now be y where (x,y) is the shape of the F matrix
+
+"""
+***Next task***: obtain the F values 100ms before and 500ms after the frame specified in 2
+"""
+# """
+# 2. Find the right frame number which correspnds to the time the stimulus came on
+# getting the frame clock data and checking which number corresponds to the photodiode change, 
+# although probably enough to just use the photodiode since they are aligned well (onset of stim coincides with frame onset)
+# """
 frame_clock= meta[:,1]
-plt.plot(frame_clock)
+# plt.plot(frame_clock)
 
 
+
+""" need to make sure frames and photdiode change times have the same unit (seconds)?
+So now need to create a sort of LUT which helps me identify which frame identity corresponds to the seconds --> simply divide the total frame number by the frame rate (6 most of the time)"""
+
+#checking the lemgth of time of the photodiode acq and the experiment length (just first exp though)
+length_time = len(photodiode)/1000
+#loading ops file to get length of first experiment
+ops =  np.load(filePathops, allow_pickle=True)
+ops = ops.item()
+
+#printing data path to know which data was analysed
+key_list = list(ops.values())
+print(key_list[88])
+print("frames per folder:",ops["frames_per_folder"])
+exp= np.array(ops["frames_per_folder"])
+frame_rate = 5.996
+#experiment number: 0=1; 1=2, etc ((maybe write a function for this))
+exp_n = 0
+length_frames = exp[exp_n]/frame_rate
+
+if np.rint(length_frames) == np.rint(length_time):
+    print("all good, continue processing")
+else:
+    print("difference is:",abs(length_time-length_frames))
+    
 """
-getting the signal, for now using the raw F
+Next task: aligning the frames with stim, maybe create a 2D matrix with both?
 """
-animal=  'Hedes'
-date= '2022-03-23'
-#note: if experiment type not known, put 'suite2p' instead
-experiment= 'suite2p'
-plane_number= '1'
+#getting the photodiode times in the same unit as frames
+pdc_frames = photodiode_change/1000*frame_rate
 
-filePathF='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'//F.npy'
-signal= np.load(filePathF, allow_pickle=True)
+signal_exp1 = np.float64(signal[:,0:exp[0]])
+ROI= 0
+signal_exp1_perROI = signal_exp1[ROI, :]
 
-""" need to make sure frames and photdiode change times have the same unit (seconds)?"""
-# tmeta= meta.T
-# photodiode1= tmeta[0]
-# crossings= photodiode(photodiode1)
+
 
 #Liad's code for aligning stim
-# def AlignStim(signal, time, eventTimes, window,timeUnit=1,timeLimit=1):
-#     aligned = [];
-#     t = [];
-#     dt = np.median(np.diff(time,axis=0))
-#     if (timeUnit==1):
-#         w = np.rint(window / dt).astype(int)
-#     else:
-#         w = window.astype(int)
-#     maxDur = signal.shape[0]
-#     if (window.shape[0] == 1): # constant window
-#         mini = np.min(w[:,0]);
-#         maxi = np.max(w[:,1]);
-#         tmp = np.array(range(mini,maxi));
-#         w = np.tile(w,((eventTimes.shape[0],1)))
-#     else:
-#         if (window.shape[0] != eventTimes.shape[0]):
-#             print('No. events and windows have to be the same!')
-#             return 
-#         else:
-#             mini = np.min(w[:,0]);
-#             maxi = np.max(w[:,1]);
-#             tmp = range(mini,maxi); 
-#     t = tmp * dt;
-#     aligned = np.zeros((t.shape[0],eventTimes.shape[0],signal.shape[1]))
-#     for ev in range(eventTimes.shape[0]):
-#     #     evInd = find(time > eventTimes(ev), 1);
+def AlignStim(signal, time, eventTimes, window,timeUnit=1,timeLimit=1):
+    aligned = [];
+    t = [];
+    dt = np.median(np.diff(time,axis=0))
+    if (timeUnit==1):
+        w = np.rint(window / dt).astype(int)
+    else:
+        w = window.astype(int)
+    maxDur = signal.shape[0]
+    if (window.shape[0] == 1): # constant window
+        mini = np.min(w[:,0]);
+        maxi = np.max(w[:,1]);
+        tmp = np.array(range(mini,maxi));
+        w = np.tile(w,((eventTimes.shape[0],1)))
+    else:
+        if (window.shape[0] != eventTimes.shape[0]):
+            print('No. events and windows have to be the same!')
+            return 
+        else:
+            mini = np.min(w[:,0]);
+            maxi = np.max(w[:,1]);
+            tmp = range(mini,maxi); 
+    t = tmp * dt;
+    aligned = np.zeros((t.shape[0],eventTimes.shape[0],signal.shape[1]))
+    for ev in range(eventTimes.shape[0]):
+    #     evInd = find(time > eventTimes(ev), 1);
         
-#         wst = w[ev,0]
-#         wet = w[ev,1]
+        wst = w[ev,0]
+        wet = w[ev,1]
         
-#         evInd = np.where(time>=eventTimes[ev])[0]
-#         if (len(evInd)==0): 
-#             continue
-#         else :
-#             # None
-#             # if dist is bigger than one second stop
-#             if (np.any((time[evInd[0]]-eventTimes[ev])>timeLimit)):
-#                 continue
+        evInd = np.where(time>=eventTimes[ev])[0]
+        if (len(evInd)==0): 
+            continue
+        else :
+            # None
+            # if dist is bigger than one second stop
+            if (np.any((time[evInd[0]]-eventTimes[ev])>timeLimit)):
+                continue
             
-#         st = evInd[0]+ wst #get start
-#         et = evInd[0] + wet  #get end        
+        st = evInd[0]+ wst #get start
+        et = evInd[0] + wet  #get end        
         
-#         alignRange = np.array(range(np.where(tmp==wst)[0][0],np.where(tmp==wet-1)[0][0]+1))
+        alignRange = np.array(range(np.where(tmp==wst)[0][0],np.where(tmp==wet-1)[0][0]+1))
         
        
-#         sigRange = np.array(range(st,et))
+        sigRange = np.array(range(st,et))
        
-#         valid = np.where((sigRange>=0) & (sigRange<maxDur))[0]
+        valid = np.where((sigRange>=0) & (sigRange<maxDur))[0]
       
-#         aligned[alignRange[valid],ev,:] = signal[sigRange[valid],:];
-#     return aligned, t
+        aligned[alignRange[valid],ev,:] = signal[sigRange[valid],:];
+    return aligned, t
+
+AlignStim(signal= signal, time= frame_clock, eventTimes= photodiode_change, window= ???)
+
+#window is an array like (-0.5s to -.5 secs)

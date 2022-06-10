@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 
 #defining path
 animal=  'Hedes'
-date= '2022-03-30'
+date= '2022-03-23'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= '1'
 NiDaqInput= 'NiDaqInput0'
@@ -111,21 +111,34 @@ tmeta= meta.T
 
 #more optimised code for plotting for any number of channels
 
-fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
+# fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
 
-for i in range(tmeta.shape[0]):
+# for i in range(tmeta.shape[0]):
     
-    axs[i].plot(tmeta[i,0:15000], c="b")
+#     axs[i].plot(tmeta[i,0:15000], c="b")
     
     
-fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
+# fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
 
-for i in range(tmeta.shape[0]):
+# for i in range(tmeta.shape[0]):
     
-    axs[i].plot(tmeta[i,14500:15000], c="b")
+#     axs[i].plot(tmeta[i,14500:15000], c="b")
 
 # plt.savefig("")
-   
+
+#plotting the full length
+fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
+
+for i in range(tmeta.shape[0]):
+    
+    axs[i].plot(tmeta[i], c="b")
+    
+    
+fig, axs = plt.subplots(tmeta.shape[0], sharex=True)
+
+for i in range(tmeta.shape[0]):
+    
+    axs[i].plot(tmeta[i], c="b")
 
 """
 
