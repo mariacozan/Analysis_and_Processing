@@ -200,7 +200,7 @@ signal_exp1_perROI = signal_exp1[ROI, :]
 """
 defining the window for the stimulus
 """
-window= [-0.5, 2]
+window= np.array([-1, 1])
 
 #Liad's code for aligning stim
 def AlignStim(signal, time, eventTimes, window,timeUnit=1,timeLimit=1):

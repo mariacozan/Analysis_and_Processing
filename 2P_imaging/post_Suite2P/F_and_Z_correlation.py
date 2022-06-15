@@ -42,16 +42,16 @@ def z_trace(opspath):
     ops =  np.load(opspath, allow_pickle=True)
     ops = ops.item()
     ops_list= list(ops.values())
-    zcorr= np.array(ops_list[132])
+    zcorr= np.array(ops_list[-1])
     Z= np.argmax(gaussian_filter1d(zcorr.T.copy(), 2, axis=1), axis=1)
     return Z
 
 #from D drive
-animal=  'Hedes'
-date= '2022-03-23'
+animal=  'Eos'
+date= '2022-02-28'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= 'suite2p'
-plane_number= '2'
+plane_number= '1'
 
 filePathops='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'//ops.npy'
 filePathF='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'//F.npy'
