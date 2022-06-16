@@ -47,8 +47,8 @@ def z_trace(opspath):
     return Z
 
 #from D drive
-animal=  'Eos'
-date= '2022-02-28'
+animal=  'Hedes'
+date= '2022-03-30'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= 'suite2p'
 plane_number= '1'
@@ -56,13 +56,17 @@ plane_number= '1'
 filePathops='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'//ops.npy'
 filePathF='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'//F.npy'
 filePathFneu='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'//Fneu.npy'
+filePathcell = 'D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+experiment+ '//plane'+plane_number+'//iscell.npy'
 
 
 
 
 F= np.load(filePathF, allow_pickle=True)
 Fneu = np.load(filePathFneu, allow_pickle=True)
+iscell= np.load(filePathcell, allow_pickle=True)
+cells= np.where(iscell == 1)[0]
 
+F_cells = F[cells,:]
 
 Ztrace= z_trace(opspath=filePathops)
 FandZ= np.stack((Ztrace, F[0]))
@@ -81,8 +85,8 @@ for ROI,coeff in enumerate(corr_list):
         correlated.append(ROI)
         
 #choose ROI
-n=21
-n_str= str(n)
+# n=21
+# n_str= str(n)
 
 # fig, axs = plt.subplots(3, sharex=True)
 
@@ -96,20 +100,26 @@ n_str= str(n)
 #scatterplot of Z trace vs F with the r value as an inset
 
 #determine location of the inset depending on max F
+max_F= np.amax(F[n])
+max10p_F=np.amax(F[n])/9
 
-fig = plt.figure()
-plt.scatter(Ztrace, F[n])
+for n in range(F_cells.shape[0]):
+    n_str= str(n)
+    fig = plt.figure()
+    plt.scatter(Ztrace, F_cells[n])
+    #plt.text(n_str,max_F+max10p_F, fontsize= 10)
+    plt.xlabel('distance from surface(um)', fontsize=20)
+    plt.ylabel('Raw fluorescence intensity', fontsize=18)
+    plt.rc('xtick',labelsize=20)
+    plt.rc('ytick', labelsize=20)
+    filePathplot= 'D://Z-analysis//'+animal+ '//'+date+ '//all_plots//plane'+plane_number+'ROI'+n_str+'.png'
+    #filePathplotZdrive= 'Z://RawData//'+animal+ '//'+date+'//'+plane_number+'//plane'+plane_number+'ROI'+n_str+'.png'
+    fig.savefig(filePathplot, pad_inches=0.01)
+    #fig.savefig(filePathplotZdrive)
+    
 
-plt.xlabel('distance from surface(um)', fontsize=20)
-plt.ylabel('Raw fluorescence intensity', fontsize=18)
-plt.rc('xtick',labelsize=20)
-plt.rc('ytick', labelsize=20)
 
-filePathplot= 'D://Z-analysis//'+animal+ '//'+date+ '//plane'+plane_number+'ROI'+n_str+'.png'
-fig.savefig(filePathplot, pad_inches=0.01)
-
-# max_F= np.amax(F[n])
-# max10p_F=np.amax(F[n])/9
+# 
 # corr_number= str(corr_list[n])
 # r= "r="+corr_number+"."
 # scatterplot = plt.scatter(Ztrace, F[n])
