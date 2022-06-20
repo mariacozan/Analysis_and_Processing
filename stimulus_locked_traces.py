@@ -37,7 +37,40 @@ filePathF='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//suite2p//plane'+pl
 filePathops= 'D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//suite2p//plane'+plane_number+'//ops.npy'
 filePathmeta= 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//NiDaqInput0.bin'
 signal= np.load(filePathF, allow_pickle=True)
+filePathiscell = 'D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//suite2p//plane'+plane_number+'//iscell.npy'
 
+def getcells(filePathF, filePathiscell):
+    """
+    This function returns the ROIs that are classified as cells. 
+    Careful, only use this if you have manually curated the Suite2P data!
+
+    Parameters
+    ----------
+    filePathF : string
+        The path of where the fluorescence traces from Suite2P are located. 
+        It will load the file as an array within the function.
+        This should be an array of shape [x,y] where x is the number of ROIs and y the corresponding values of F intensity
+        
+    filePathiscell : string
+        The path of where the iscell file from Suite2P is located.
+        iscell should be an array of shape [x,y] where x is the number of ROIs and y is the classification confidence
+        (values are boolean, 0 for not a cell, 1 for cell)
+        cells is a 1D array [x] with the identify of the ROIs classified as cells in iscell
+
+    Returns
+    -------
+    F_cells : array of float32 
+        array of shape [x,y] where x is the same as the one in cells and y contains the corresponding F intensities
+
+    """
+    iscell = np.load(filePathiscell, allow_pickle=True)
+    F = np.load(filePathF, allow_pickle=True)
+    cells = np.where(iscell == 1)[0]
+    F_cells = F[cells,:]
+    
+    return F_cells
+
+signal_cells = getcells(filePathF= filePathF, filePathiscell= filePathiscell)
 
 def GetMetadataChannels(niDaqFilePath, numChannels = 7):
     """
@@ -183,7 +216,7 @@ exp_n = 0
 length_frames = exp[exp_n]/frame_rate
 
 if np.rint(length_frames) == np.rint(length_time):
-    print("all good, continue processing")
+    print("length is the same")
 else:
     print("difference is:",abs(length_time-length_frames))
     
