@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 """
-Created on Thu Apr 28 18:18:13 2022
+Created on Wed Jun 22 13:45:56 2022
 
 @author: maria
 """
+
 
 """
 Plan for stimulus locked trace:
@@ -19,20 +20,21 @@ Plan for stimulus locked trace:
 """
 
 import numpy as np
+from numpy import zeros, newaxis
 import matplotlib.pyplot as plt
 import scipy as sp
 from scipy.signal import butter,filtfilt,medfilt
 
 
-"""
-getting the signal, for now using the raw F
-"""
+
+#getting the signal, for now using the raw F
+
 animal=  'Hedes'
 date= '2022-03-23'
 #note: if experiment type not known, put 'suite2p' instead
-experiment = '2'
+experiment = '1'
 #the file number of the NiDaq file, not alway experiment-1 because there might have been an issue with a previous acquisition etc
-file_number = '1'
+file_number = '0'
 plane_number = '1'
 #IMPORTANT: SPECIFY THE FRAME RATE
 frame_rate = 6
@@ -42,6 +44,20 @@ filePathmeta= 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//NiDaqInput'+
 signal= np.load(filePathF, allow_pickle=True)
 filePathiscell = 'D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//suite2p//plane'+plane_number+'//iscell.npy'
 
+    
+#loading ops file to get length of first experiment
+ops =  np.load(filePathops, allow_pickle=True)
+ops = ops.item()
+
+#printing data path to know which data was analysed
+key_list = list(ops.values())
+print(key_list[88])
+print("frames per folder:",ops["frames_per_folder"])
+exp= np.array(ops["frames_per_folder"])
+#getting the first experiment, this is the length of the experiment in frames
+exp1 = int(exp[0])
+
+#getting the F traces which are classified as cells by Suite2P (manually curated ROIs should be automatically saved)
 def getcells(filePathF, filePathiscell):
     """
     This function returns the ROIs that are classified as cells. 
@@ -72,11 +88,13 @@ def getcells(filePathF, filePathiscell):
     F_cells = F[cells,:]
     
     return F_cells
-iscell = np.load(filePathiscell, allow_pickle=True)
-cells = np.where(iscell == 1)[0]
+
+#loading the F trace of cells into a variable
 signal_cells = getcells(filePathF= filePathF, filePathiscell= filePathiscell)
 
-def GetMetadataChannels(niDaqFilePath, numChannels = 7):
+
+#code from Liad, returns the metadata, remember to change the number of channels
+def GetMetadataChannels(niDaqFilePath, numChannels):
     """
     
 
@@ -97,7 +115,26 @@ def GetMetadataChannels(niDaqFilePath, numChannels = 7):
     niDaq = np.reshape(niDaq,(int(len(niDaq)/numChannels),numChannels))
     return niDaq
 
+meta = GetMetadataChannels(filePathmeta, numChannels=4)
+#optional plotting of metadata
+# tmeta= meta.T
+# fig, axs = plt.subplots(5, squeeze=True)
+# axs[0].plot(np.array(range(len(tmeta[0])))/1000, tmeta[0])
+# axs[0].title.set_text("Photodiode")
+# axs[1].plot(np.array(range(len(tmeta[0])))/1000, tmeta[1])
+# axs[1].title.set_text("Frame Clock")
+# axs[2].plot(np.array(range(len(tmeta[0])))/1000, tmeta[2])
+# axs[2].title.set_text("Pockel feedback")
+# axs[3].plot(np.array(range(len(tmeta[0])))/1000, tmeta[3])
+# axs[3].title.set_text("Piezo")
+# axs[4].plot(np.array(range(len(signal_cells[0, 0:exp1])))/frame_rate, signal_cells[0, 0:exp1])
+# axs[4].title.set_text("Fluorescence")
 
+# for ax in axs.flat:
+#     ax.label_outer()
+
+
+#function from Liad, detecting photodiode change
 def DetectPhotodiodeChanges(photodiode,plot=False,lowPass=30,kernel = 101,fs=1000, waitTime=5000):
     """
     The function detects photodiode changes using a 'Schmitt Trigger', that is, by
@@ -147,88 +184,38 @@ def DetectPhotodiodeChanges(photodiode,plot=False,lowPass=30,kernel = 101,fs=100
         # ax.plot(st,np.ones(len(crossingsD))*threshold,'r*')  
         ax.legend()
         ax.set_xlabel('time (ms)')
-        ax.set_ylabel('Amplitude (V)')
-    
-    
-    
-    
+        ax.set_ylabel('Amplitude (V)')  
     
     return crossings
 
-meta = GetMetadataChannels(filePathmeta, numChannels=4)
-#plotting metadata
-# tmeta= meta.T
-# fig, axs = plt.subplots(4, squeeze=True)
-# axs[0].plot(tmeta[0, 14500:15000])
-# axs[0].title.set_text("Photodiode")
-# axs[1].plot(tmeta[1, 14500:15000])
-# axs[1].title.set_text("Frame Clock")
-# axs[2].plot(tmeta[2, 14500:15000])
-# axs[2].title.set_text("Pockel feedback")
-# axs[3].plot(tmeta[3, 14500:15000])
-# axs[3].title.set_text("Piezo")
 
-# for ax in axs.flat:
-#     ax.label_outer()
     
 
 
 """
 1.Step: get the times when the stimulus appeared so when the photodiode went from on to off
 """
+#getting the photodiode info, usually the first column in the meta array
 photodiode = meta[:,0]
+#using the function from above to put the times of the photodiode changes (in milliseconds!)
 photodiode_change = DetectPhotodiodeChanges(photodiode,plot=False,lowPass=30,kernel = 101,fs=1000, waitTime=5000)
 
 """
 2.Step: get stim onset time as frame number
 output from 1. gives a matrix with the time at which stim. appeared, but this is at a sampling rate of 1000Hz so need to divide values by 1000
 """
-#photodiode change= pdc
-pdc_secs= photodiode_change/1000
-#this value should now be y where (x,y) is the shape of the F matrix
+#getting the photodiode times in the same unit as frames
+stim_times = photodiode_change/1000*frame_rate
 
 """
 ***Next task***: obtain the F values 100ms before and 500ms after the frame specified in 2
 """
-# """
-# 2. Find the right frame number which correspnds to the time the stimulus came on
-# getting the frame clock data and checking which number corresponds to the photodiode change, 
-# although probably enough to just use the photodiode since they are aligned well (onset of stim coincides with frame onset)
-# """
-frame_clock= meta[:,1]
-# plt.plot(frame_clock)
+
+#getting the fluorescence for the first experiment
+first_exp_F = signal_cells[:, 0:exp1]
+   
 
 
-
-""" need to make sure frames and photdiode change times have the same unit (seconds)?
-So now need to create a sort of LUT which helps me identify which frame identity corresponds to the seconds --> simply divide the total frame number by the frame rate (6 most of the time)"""
-
-#checking the lemgth of time of the photodiode acq and the experiment length (just first exp though)
-length_time = len(photodiode)/1000
-#loading ops file to get length of first experiment
-ops =  np.load(filePathops, allow_pickle=True)
-ops = ops.item()
-
-#printing data path to know which data was analysed
-key_list = list(ops.values())
-print(key_list[88])
-print("frames per folder:",ops["frames_per_folder"])
-exp= np.array(ops["frames_per_folder"])
-
-#experiment number: 0=1; 1=2, etc ((maybe write a function for this))
-exp_n = 1
-length_frames = exp[exp_n]/frame_rate
-
-if np.rint(length_frames) == np.rint(length_time):
-    print("length is the same")
-else:
-    print("difference is:",abs(length_time-length_frames))
-    
-"""
-Next task: aligning the frames with stim, maybe create a 2D matrix with both?
-"""
-#getting the photodiode times in the same unit as frames
-pdc_frames = photodiode_change/1000*frame_rate
 
 """2022-06-20:
 - use np.where to obtain the F traces 1s before and 1s after the stim onset
@@ -236,32 +223,32 @@ pdc_frames = photodiode_change/1000*frame_rate
 - create a for loop which creates snippets of the big F trace with the intervals being the intervals created from the previous point
 """
 
-#stimulus aligned trace for one cell and 1 stimulus
+#creating the window for the plot only
 steps = 2/(2*frame_rate)
 range_of_window = np.arange(-1, 1, steps)
-signal_exp1 = np.float64(signal[:,0:exp[1]])
+
 
 #ROI= np.random.choice(cells)
 
-stim = 100
-stim_str = str(stim)
+# stim = 100
+# stim_str = str(stim)
 #stim_traces = np.zeros()
 #for m in range(pdc_frames.shape[0]):
-for ROI in range(cells.shape[0]):
-    ROI_str= str(ROI)
-    ROI_is = "ROI number "+ROI_str+"."
-    signal_perROI = signal_exp1[ROI, :]
-    one_window_b = int(pdc_frames[stim]-frame_rate)
-    one_window_f = int(pdc_frames[stim]+frame_rate)
+# for ROI in range(signal_cells.shape[0]):
+#     ROI_str= str(ROI)
+#     ROI_is = "ROI number "+ROI_str+"."
+#     signal_perROI = signal_exp1[ROI, :]
+#     one_window_b = int(pdc_frames[stim]-frame_rate)
+#     one_window_f = int(pdc_frames[stim]+frame_rate)
     
-    F_on_stim = signal_perROI[one_window_b:one_window_f]
-    fig, ax = plt.subplots()
-    ax.plot(range_of_window, F_on_stim)
-    ax.set_xlabel('Time(s)', fontsize= 16)
-    ax.set_ylabel('F intensity', fontsize= 16)
-    max_height = np.max(F_on_stim) +500
-    plt.text(10, max_height, ROI_is)
-    filePath_stim_aligned = 'D://Stim_aligned//'+animal+ '//'+date+ '//'+experiment+'//stim'+stim_str+'ROI'+ROI_str+'.png'
+#     F_on_stim = signal_perROI[one_window_b:one_window_f]
+#     fig, ax = plt.subplots()
+#     ax.plot(range_of_window, F_on_stim)
+#     ax.set_xlabel('Time(s)', fontsize= 16)
+#     ax.set_ylabel('F intensity', fontsize= 16)
+#     max_height = np.max(F_on_stim) +500
+#     plt.text(10, max_height, ROI_is)
+#     filePath_stim_aligned = 'D://Stim_aligned//'+animal+ '//'+date+ '//'+experiment+'//stim'+stim_str+'ROI'+ROI_str+'.png'
                 
     # plt.savefig(filePath_stim_aligned)
     
@@ -274,10 +261,39 @@ for ROI in range(cells.shape[0]):
                 per cell all the traces aligned to a stimulus
                 on top of that all the traces of the cells for all the stimuli (3D array?)
                 
+    How?
+    For each stimulus in pdc_frames, I need to create an array which contains the fluorescence at for ex 1s before and 2s after for each cell
+    so the dimenisions of the array would be (cells, the F trace across 3 secs, the stimuli)
+    A for loop which goes through the pdc_frames array
+                
 """
+cells = signal_cells.shape[0]
+#interval refers to how many seconds long the window will be
+interval = 3
+#window_size = int(frame_rate*interval)
+stimuli = stim_times.shape[0]
+
+#stim_aligned = np.zeros((cells, window_size, stimuli))
+"""
+what I need from a for loop: go through each cell (i.e. row) in the first_exp_F array then "slice" each row multiple times at intervals s 
+"""
+stim_before = np.array(stim_times - frame_rate*interval)
+stim_after = np.array(stim_times + frame_rate*interval)
+stim_interval = np.stack((stim_before, stim_after))
+
+for stim in range(stim_times.shape[0]):
+    before_stim = int(stim_times[stim]-frame_rate*interval)
+    after_stim = int(stim_times[stim]+frame_rate*interval)
+    stim_aligned_test = first_exp_F[:, before_stim:after_stim] 
+#stim_aligned = first_exp_F[:,:, newaxis]
+#stim_aligned = np.where()
+# for stim in range(pdc_frames.shape[0]):
+
+#     stim_aligned = signal_cells[0, int(pdc_frames[stim])-frame_rate : int(pdc_frames[stim])+2*frame_rate]
 
 # for n in pdc_frames:
-    
+
+
 
 """
 defining the window for the stimulus

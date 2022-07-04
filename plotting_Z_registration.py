@@ -10,8 +10,8 @@ import matplotlib.pyplot as plt
 from scipy.ndimage import gaussian_filter1d
 
 #from D drive
-animal=  'Eos'
-date= '2022-02-28'
+animal=  'Iris'
+date= '2022-06-17'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= 'suite2p'
 plane_number= '1'
@@ -34,7 +34,7 @@ F_cells = F[cells,:]
 
 #plan: plot F of neurons on top of each other and then plot the Z 
 ops_list= list(ops.values())
-zcorr= np.array(ops_list[132])
+zcorr= np.array(ops_list[-1])
 
 #plt.plot(zcorr)
 
@@ -61,7 +61,7 @@ Z= Z.astype(float)
 #plotting 1 ROI
 fig, axs = plt.subplots(3, sharex=True)
 #choose ROI
-n = 34
+n = np.random.choice(cells)
 n_str= str(n)
 axs[0].plot(np.array(range(len(F[n])))/6, Z, c="blue")   
 axs[0].set_ylabel('distance(um)', fontsize= 12)
@@ -82,7 +82,7 @@ for ax in axs.flat:
 ax.set_xlabel('Time(s)', fontsize= 16)
 
 
-filePathplot= 'D://Z-analysis//'+animal+ '//'+date+ '//trace_plot_for_ROI'+n_str+'.png'
+filePathplot= 'D://Z-analysis//'+animal+ '//'+date+ '//plane'+plane_number+'trace_plot_for_ROI'+n_str+'.png'
 plt.savefig(filePathplot)
 
     
