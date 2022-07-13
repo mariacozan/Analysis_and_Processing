@@ -13,16 +13,16 @@ import pandas as pd
 
 
 #defining path
-animal=  'Glaucus'
-date= '2022-06-30'
+animal=  'Hedes'
+date= '2022-07-05'
 
-exp_nr= 1
+exp_nr= 4
 experiment= str(exp_nr)
 
 #NDIN is the number in the NiDaq binary file, bear in mind this is not always experiment number - 1, always double check
 #NDIN= exp_nr-1
 #in case number is not exp number - 1 then put it in manually here:
-NDIN = 0
+NDIN = 3
 NiDaqInputNo= str(NDIN)
 
 filePathInput='Z://RawData//'+animal+ '//'+date+ '//'+experiment+ '//NiDaqInput'+NiDaqInputNo+'.bin'
@@ -79,9 +79,7 @@ if numChannels == 7:
     axs[6].plot(tmeta[6, start_long:end_long])
     axs[6].title.set_text("Camera")
     plt.xlabel("Time(ms)")
-    for ax in axs.flat:
-        ax.label_outer()
-    
+ cell
     plt.subplots_adjust(wspace=0.7, hspace=0.7)
         
     plt.savefig(filePathOutput2s)

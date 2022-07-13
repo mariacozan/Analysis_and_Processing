@@ -78,7 +78,7 @@ axs[2].plot(np.array(range(len(F1[n])))/6, Fneu[n3], c="magenta")
 plt.subplots_adjust(wspace=0.7, hspace=0.7)
 plt.xlabel("Time(s)")
 plt.ylabel("Raw Flurescence Intensity")
-yaxis.set_label_coords(-.1, .1)
+#yaxis.set_label_coords(-.1, .1)
 n_str= str(n)
 
 # filePathplot= 'D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//ROI'+n_str+'.png'

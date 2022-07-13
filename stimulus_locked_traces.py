@@ -337,6 +337,6 @@ defining the window for the stimulus
 #         aligned[alignRange[valid],ev,:] = signal[sigRange[valid],:];
 #     return aligned, t
 
-# #AlignStim(signal= signal, time= frame_clock, eventTimes= photodiode_change, window= window)
+# # #AlignStim(signal= signal, time= frame_clock, eventTimes= photodiode_change, window= window)
 
-# #window is an array like (-0.5s to -.5 secs)
+# # #window is an array like (-0.5s to -.5 secs)

@@ -15,8 +15,8 @@ import pandas as pd
 import statistics as stats
 
 #defining path
-animal=  'Glaucus'
-date= '2022-03-28'
+animal=  'Hedes'
+date= '2022-06-28'
 planes = 5
 exp_nr=1
 experiment= str(exp_nr)
@@ -54,7 +54,7 @@ def GetMetadataChannels(niDaqFilePath, numChannels = 4):
     niDaq = np.reshape(niDaq,(int(len(niDaq)/numChannels),numChannels))
     return niDaq
 
-def AssignFrameTime(frameClock,th = 0.5,plot=True):
+def AssignFrameTime(frameClock,th = 0.5,plot=False):
     """
     The function assigns a time in ms to a frame time.
     
@@ -89,8 +89,8 @@ def AssignFrameTime(frameClock,th = 0.5,plot=True):
         
     return pkTimes
 
-#specify how many channels there are in the binary file, check in bonsai script
-numChannels= 4
+"""IMPORTANT: specify how many channels there are in the binary file, check in bonsai script and metadata plots!"""
+numChannels= 5
 meta= GetMetadataChannels(filePathInput, numChannels=numChannels)
 tmeta= meta.T
 frame_clock = tmeta[1]
@@ -98,14 +98,14 @@ frame_times = AssignFrameTime(frame_clock)
 piezo = tmeta[3]
 
 start = 5000
-end = 6000
+end = 7000
 
 
-fig1, axs = plt.subplots(2)
-axs[0].plot(tmeta[1, start:end])
-axs[0].title.set_text("Frame Clock")
-axs[1].plot(tmeta[3, start:end])
-axs[1].title.set_text("Piezo")
+# fig1, axs = plt.subplots(2)
+# axs[0].plot(tmeta[1, start:end])
+# axs[0].title.set_text("Frame Clock")
+# axs[1].plot(tmeta[3, start:end])
+# axs[1].title.set_text("Piezo")
 
 
 
@@ -134,38 +134,53 @@ What is known?
 # instead could also be applicable to the stim aligning (I mean it's literally the same principle))
 distance_plane = []
 for frames in frame_times:
-    distance_plane.append(piezo[frames]*80)
+    distance_plane.append(piezo[frames])
 
 distance_plane = np.array(distance_plane)
 
 # plotting the absolute distance values for the time at which the end and the start of a frame was recorded for 100ms
-f,ax = plt.subplots(1)
-ax.plot(distance_plane[0:100], "-o")
-ax.set_xlabel('Time(ms)')
-ax.set_ylabel('distance from top plane')
+# f,ax = plt.subplots(1)
+# ax.plot(distance_plane[0:100], "-o")
+# ax.set_xlabel('Time(ms)')
+# ax.set_ylabel('distance from top plane')
 #now have all the distance values for when a frame was written
 
 #need to then take the even values sequentially to get the more values at the start of each frame
+max_volts = np.amax(tmeta[3])
+#specify the maximum distance (in um) travelled for each experiment (need to determine during experiments!)
+max_distance = 90
 
-d_start_frame = distance_plane[::2]
+#per 1 volts, the distance travelled is:
+unit = max_distance/max_volts
+d_start_frame = distance_plane[::2]*unit
 
 f,ax = plt.subplots(1)
 ax.plot(d_start_frame[0:100], "-o")
 ax.set_xlabel('Time(ms)')
 ax.set_ylabel('distance from top plane')
 
-d_1 = abs(d_start_frame[8]) - abs(d_start_frame[7])
-d_2 = abs(d_start_frame[9]) - abs(d_start_frame[8])
-d_3 = abs(d_start_frame[10]) - abs(d_start_frame[9])
-distances = [d_1, d_2, d_3]
+#check in the third figure generated which frames correspond to the linear parts
+n =3
+d_1 = abs(d_start_frame[n]) - abs(d_start_frame[n-1])
+d_2 = abs(d_start_frame[n+1]) - abs(d_start_frame[n])
+#d_3 = abs(d_start_frame[n+2]) - abs(d_start_frame[n+1])
+distances = [d_1, d_2]
 mean_d = stats.mean(distances)
 print(mean_d)
 
 #in theory the above should work but it doesn't make much sense, especially when the piezo signal is negative
 
 ##old code below, just checking max value and dividing by planes and multiplying times 80
-# max_value = np.amax(tmeta[3])
+#max_value = np.amax(tmeta[3])
 # min_value = np.amin(tmeta[3])
+
+"""
+2022-07-06: reworking this
+for the data from yesterday, the max distance travelled was 90um (from 20-110um deep, steps of 30)
+the max voltage for that point is 1.85...
+so then dividing 90 by the max voltage will give the distance per 1V which is 48.65um
+-->it worked
+"""
 
 # print(min_value, max_value)
 
@@ -177,3 +192,5 @@ print(mean_d)
 #values used to be between 0-1 before May, then changed to lower numbers
 
 #but this is not an issue, can simply 
+
+# compare two recordings with different planes (if voltage change is the same)
