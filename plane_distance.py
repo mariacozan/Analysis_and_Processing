@@ -145,28 +145,29 @@ distance_plane = np.array(distance_plane)
 # ax.set_ylabel('distance from top plane')
 #now have all the distance values for when a frame was written
 
-#need to then take the even values sequentially to get the more values at the start of each frame
+
 max_volts = np.amax(tmeta[3])
 #specify the maximum distance (in um) travelled for each experiment (need to determine during experiments!)
 max_distance = 90
 
 #per 1 volts, the distance travelled is:
 unit = max_distance/max_volts
+#need to then take the even values sequentially to get the more values at the start of each frame and multiply by unit
 d_start_frame = distance_plane[::2]*unit
 
-f,ax = plt.subplots(1)
-ax.plot(d_start_frame[0:100], "-o")
-ax.set_xlabel('Time(ms)')
-ax.set_ylabel('distance from top plane')
+# f,ax = plt.subplots(1)
+# ax.plot(d_start_frame[0:100], "-o")
+# ax.set_xlabel('Time(ms)')
+# ax.set_ylabel('distance from top plane')
 
 #check in the third figure generated which frames correspond to the linear parts
 n =3
 d_1 = abs(d_start_frame[n]) - abs(d_start_frame[n-1])
-d_2 = abs(d_start_frame[n+1]) - abs(d_start_frame[n])
+#d_2 = abs(d_start_frame[n+1]) - abs(d_start_frame[n])
 #d_3 = abs(d_start_frame[n+2]) - abs(d_start_frame[n+1])
-distances = [d_1, d_2]
-mean_d = stats.mean(distances)
-print(mean_d)
+#distances = [d_1, d_2]
+#mean_d = stats.mean(distances)
+print("distance is", d_1)
 
 #in theory the above should work but it doesn't make much sense, especially when the piezo signal is negative
 
