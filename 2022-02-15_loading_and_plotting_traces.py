@@ -25,7 +25,7 @@ def normalise(data):
 #faster way to load
 #from D drive
 animal=  'Hedes'
-date= '2022-03-23'
+date= '2022-07-05'
 #note: if experiment type not known, put 'suite2p' instead
 experiment= 'suite2p'
 plane_number= '1'
@@ -46,10 +46,10 @@ Fneu = np.load(filePathFneu, allow_pickle=True)
 # axs[1].plot(Fneu[31])
 
 # choosing one ROI
-n=21
+n=32
 
 #converting frames to seconds
-fs=6
+fs=15
 
 #ROI_256 = np.array(F1[0])
 #ROI_512 = np.array(F2[21])
@@ -58,23 +58,26 @@ fs=6
 #plotting one cell/ a few cells and comparing two analyses
 # plt.plot(F1[5], c="r")
 # plt.plot (F2[21], c="b")
-plt.plot(np.array(range(len(F1[n])))/6,F1[n], c="blue")
-plt.plot(np.array(range(len(Fneu[n])))/6,Fneu[n], c="red")
+plt.plot(np.array(range(len(F1[n])))/fs,F1[n], c="blue")
+plt.plot(np.array(range(len(Fneu[n])))/fs,Fneu[n], c="black")
+plt.axvline(x=2691, c="red", linestyle="dashed", linewidth = 1)    
+
 #plt.plot(np.array(range(len(F2[17])))/6,F2[17], c="blue")
 #plt.plot(np.array(range(len(Fneu[17])))/6,Fneu[17], c="turquoise")
 
-fig, axs = plt.subplots(3, sharex=True, sharey=True)
+fig, axs = plt.subplots(1, sharex=True, sharey=True)
 #choose ROI
-n1=9
-n2=10
-n3= 21
+n1=32
+n2=118
+n3= 323
 n_str= str(n)
-axs[0].plot(np.array(range(len(F1[n1])))/6, F1[n1], c="blue")
-axs[0].plot(np.array(range(len(F1[n1])))/6, Fneu[n1], c="magenta")      
-axs[1].plot(np.array(range(len(F1[n])))/6, F1[n2], c="green")
-axs[1].plot(np.array(range(len(F1[n])))/6, Fneu[n2], c="magenta")
-axs[2].plot(np.array(range(len(F1[n])))/6, F1[n3], c="orange")
-axs[2].plot(np.array(range(len(F1[n])))/6, Fneu[n3], c="magenta")
+# axs[0].plot(np.array(range(len(F1[n1])))/fs, F1[n1], c="blue")
+# axs[0].plot(np.array(range(len(F1[n1])))/fs, Fneu[n1], c="magenta")  
+#axs[0].axvline(x=2691, c="red", linestyle="dashed", linewidth = 1)    
+# axs[1].plot(np.array(range(len(F1[n])))/fs, F1[n2], c="green")
+# axs[1].plot(np.array(range(len(F1[n])))/fs, Fneu[n2], c="magenta")
+# axs[2].plot(np.array(range(len(F1[n])))/fs, F1[n3], c="orange")
+# axs[2].plot(np.array(range(len(F1[n])))/fs, Fneu[n3], c="magenta")
 plt.subplots_adjust(wspace=0.7, hspace=0.7)
 plt.xlabel("Time(s)")
 plt.ylabel("Raw Flurescence Intensity")

@@ -110,8 +110,8 @@ end = 7000
 
 
 f,ax = plt.subplots(1)
-ax.plot(tmeta[1, start:end], c = "green")
-ax.plot(tmeta[3, start:end],c = "red")
+ax.plot(tmeta[1, start:end], c = "blue")
+ax.plot(tmeta[3, start:end],c = "purple")
 ax.set_xlabel('time (ms)')
 ax.set_ylabel('Amplitude (V)')
         

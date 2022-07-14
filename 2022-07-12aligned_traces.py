@@ -106,7 +106,7 @@ def AssignFrameTime(frameClock,th = 0.5,plot=False):
 
 
 #function from Liad, detecting photodiode change
-def DetectPhotodiodeChanges(photodiode,plot=False,lowPass=30,kernel = 101,fs=1000, waitTime=10000):
+def DetectPhotodiodeChanges(photodiode,plot=True,lowPass=30,kernel = 101,fs=1000, waitTime=10000):
     """
     The function detects photodiode changes using a 'Schmitt Trigger', that is, by
     detecting the signal going up at an earlier point than the signal going down,
@@ -225,7 +225,6 @@ filePathlog =  'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//Log'+log_nu
 filePathArduino = 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//ArduinoInput'+file_number+'.csv'
 signal= np.load(filePathF, allow_pickle=True)
 filePathiscell = 'D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+res+'suite2p//plane'+plane_number+'//iscell.npy'
-savePath = 'D://Stim_aligned//'+animal+ '//'+date+ '//'+res+'//plane'+plane_number+'//cell'+str(cell)+'.png'
     
 #loading ops file to get length of first experiment
 ops =  np.load(filePathops, allow_pickle=True)
@@ -274,8 +273,9 @@ meta = GetMetadataChannels(filePathmeta, numChannels=5)
 photodiode = meta[:,0]
 
 #using the function from above to put the times of the photodiode changes (in milliseconds!)
-photodiode_change = DetectPhotodiodeChanges(photodiode,plot= False,lowPass=30,kernel = 101,fs=1000, waitTime=10000)
+photodiode_change = DetectPhotodiodeChanges(photodiode,plot= True,lowPass=30,kernel = 101,fs=1000, waitTime=10000)
 #the above is indiscriminate photodiode change, when it's on even numbers that is the stim onset
+
 stim_on = photodiode_change[::2]
 stim_on_minus1 = stim_on[0:-1]
 # fig,ax = plt.subplots()
@@ -354,11 +354,13 @@ range_of_window = np.linspace(-1, end, steps)
 """
 frame clock
 """
+
 tmeta= meta.T
 frame_clock = tmeta[1]
 frame_times = AssignFrameTime(frame_clock, plot = False)
+# frame_times1 = frame_times[1:]
 frame_on = frame_times[::2]
-frames_plane1 = frame_on[::4]
+frames_plane1 = frame_on[1::4]
 
 window= np.array([-1, 4]).reshape(1,-1)
 
@@ -415,7 +417,7 @@ def AlignStim(signal, time, eventTimes, window,timeUnit=1,timeLimit=1):
         aligned[alignRange[valid],ev,:] = signal[sigRange[valid],:];
     return aligned, t
 
-#%%
+
 window= np.array([-1000, 4000]).reshape(1,-1)
 aligned_all = AlignStim(signal= signal_cells, time= frames_plane1, eventTimes= stim_on, window= window,timeLimit=1000)
 
@@ -423,7 +425,7 @@ aligned_all = AlignStim(signal= signal_cells, time= frames_plane1, eventTimes= s
 
 aligned = aligned_all[0]
 mean_response = np.zeros((aligned.shape[0], reps, aligned.shape[2]))
-fig,ax = plt.subplots(all_P.shape[1])
+#fig,ax = plt.subplots(all_P.shape[1])
 #i = 0
 # for cells in range(aligned.shape[2]):
 #                    for angle in range(all_P.shape[0]):
@@ -432,12 +434,56 @@ fig,ax = plt.subplots(all_P.shape[1])
 #                            #ax.plot(aligned[:,all_P[reps,angle] , 0])
 #                            mean_response[:, angle, cells] = aligned_one_angle
 #now for one type of stim, just load the all_P to plot them!
-one_mean = aligned[:,all_P[:,0] , 0].mean(axis = 1)
 
+cell = 75
+savePath = 'D://Stim_aligned//'+animal+ '//'+date+ '//'+res+'//plane'+plane_number+'//final_figures//30-60-120-150//cell'+str(cell)+'.png'
+angles_str = ["30","60", "90", "120", "150", "180", "210", "240","270", "300", "330", "360"]
+mean90 = aligned[:,all_P[:,0] , cell].mean(axis = 1)
+mean180 = aligned[:,all_P[:,1] , cell].mean(axis = 1)
+mean270 = aligned[:,all_P[:,3] , cell].mean(axis = 1)
+mean360 = aligned[:,all_P[:,4] , cell].mean(axis = 1)
+mean_all = np.stack((mean90, mean180, mean270, mean360))
+
+
+mean = np.zeros((all_P.shape[0], aligned.shape[0]))
+for angle in range(angles.shape[0]):
+    mean[angle,:] = aligned[:,all_P[:,0] , 0].mean(axis = 1)
+end =3
+steps = aligned.shape[0]
+range_of_window = np.linspace(-1, end, steps)
+#plotting mean response for one angle
+# fig,ax = plt.subplots()
+# ax.plot(range_of_window, mean_all[0])
+#plotting all for one angle
+# fig,ax = plt.subplots()
+# for reps  in range(all_P.shape[0]):
+#     ax.plot(range_of_window, aligned[:,all_P[reps,2] , cell], "lightgray" )
+#ax.plot(range_of_window, mean_all[0])
+#for cell in range(aligned.shape[2]):
 fig, axs = plt.subplots(2,2, squeeze=True)
+#for angle in range(mean_all.shape[0]):
+#for cell in range(aligned.shape[2]):
+range_of_window = aligned_all[1]
+
 for reps  in range(all_P.shape[0]):
-        axs[0,0].plot(aligned[:,all_P[reps,0] , 0], "lightgray" )
-axs[0,0].plot(one_mean, "black")
+    axs[0,0].plot(range_of_window, aligned[:,all_P[reps,2] , cell], "lightgray" )
+    axs[0,0].plot(range_of_window, mean_all[0], "black")
+    axs[0,0].set_title(str(angles_str[0]))
+    axs[0,0].axvline(x=0, c="red", linestyle="dashed", linewidth = 1)
+    axs[0,1].plot(range_of_window, aligned[:,all_P[reps,5] , cell], "lightgray" )
+    axs[0,1].plot(range_of_window, mean_all[1], "black")
+    axs[0,1].set_title(str(angles_str[1]))
+    axs[0,1].axvline(x=0, c="red", linestyle="dashed", linewidth = 1)
+    axs[1,0].plot(range_of_window, aligned[:,all_P[reps,8] , cell], "lightgray" )
+    axs[1,0].plot(range_of_window, mean_all[2], "black")
+    axs[1,0].set_title(str(angles_str[3]))
+    axs[1,0].axvline(x=0, c="red", linestyle="dashed", linewidth = 1)
+    axs[1,1].plot(range_of_window, aligned[:,all_P[reps,11] , cell], "lightgray" )
+    axs[1,1].plot(range_of_window, mean_all[3], "black")
+    axs[1,1].set_title(str(angles_str[4]))
+    axs[1,1].axvline(x=0, c="red", linestyle="dashed", linewidth = 1)
+    plt.savefig(savePath)
+
     # axs[0,0].title.set_text(str(degree[0]))
     # axs[1].plot(tmeta[1, start_short:end_short])
     # axs[1].title.set_text("Frame Clock")
@@ -447,6 +493,6 @@ axs[0,0].plot(one_mean, "black")
     # axs[3].title.set_text("Piezo")
     # axs[4].plot(tmeta[3, start_short:end_short])
     # axs[4].title.set_text("Synchronisation signal")
-plt.xlabel("Time(ms)")
+plt.xlabel("Time(s)")
 for ax in axs.flat:
     ax.label_outer()
