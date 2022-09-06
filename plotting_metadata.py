@@ -14,15 +14,15 @@ import pandas as pd
 
 #defining path
 animal=  'Hedes'
-date= '2022-07-05'
+date= '2022-08-05'
 
-exp_nr= 4
+exp_nr= 3
 experiment= str(exp_nr)
 
 #NDIN is the number in the NiDaq binary file, bear in mind this is not always experiment number - 1, always double check
 #NDIN= exp_nr-1
 #in case number is not exp number - 1 then put it in manually here:
-NDIN = 3
+NDIN = 2
 NiDaqInputNo= str(NDIN)
 
 filePathInput='Z://RawData//'+animal+ '//'+date+ '//'+experiment+ '//NiDaqInput'+NiDaqInputNo+'.bin'
@@ -52,10 +52,10 @@ def GetMetadataChannels(niDaqFilePath, numChannels = 4):
     niDaq = np.reshape(niDaq,(int(len(niDaq)/numChannels),numChannels))
     return niDaq
 #specify how many channels there are in the binary file, check in bonsai script
-numChannels= 5
+numChannels= 4
 
-start_short = 14000
-end_short = 14500
+start_short = 15000
+end_short = 15500
 start_long = 50000
 end_long = 52000
 meta= GetMetadataChannels(filePathInput, numChannels=numChannels)
@@ -79,7 +79,7 @@ if numChannels == 7:
     axs[6].plot(tmeta[6, start_long:end_long])
     axs[6].title.set_text("Camera")
     plt.xlabel("Time(ms)")
- cell
+ 
     plt.subplots_adjust(wspace=0.7, hspace=0.7)
         
     plt.savefig(filePathOutput2s)
@@ -155,7 +155,7 @@ if numChannels == 5:
     axs[2].title.set_text("Pockel feedback")
     axs[3].plot(tmeta[3, start_long:end_long])
     axs[3].title.set_text("Piezo")
-    axs[4].plot(tmeta[3, start_long:end_long])
+    axs[4].plot(tmeta[4, start_long:end_long])
     axs[4].title.set_text("Synchronisation signal")
     plt.xlabel("Time(ms)")
     for ax in axs.flat:
@@ -175,7 +175,7 @@ if numChannels == 5:
     axs[2].title.set_text("Pockel feedback")
     axs[3].plot(tmeta[3, start_short:end_short])
     axs[3].title.set_text("Piezo")
-    axs[4].plot(tmeta[3, start_short:end_short])
+    axs[4].plot(tmeta[4, start_short:end_short])
     axs[4].title.set_text("Synchronisation signal")
     plt.xlabel("Time(ms)")
     for ax in axs.flat:

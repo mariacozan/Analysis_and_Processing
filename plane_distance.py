@@ -121,7 +121,7 @@ ax.set_ylabel('Amplitude (V)')
 What do I need from this? 
 The end goal is to determine the distance between each plane 
 What is known?
-- values of 5V means the absolute distance moved was 400um
+- 
 - the piezo signal sampled at 1000Hz showing the voltage values throught times
 - the frame clock signal also sampled at 1000Hz which shows the voltage values of 5V when a frame was recorded
 - based on Liad's code I also have the frame_times, the time at which a frame was recorded
