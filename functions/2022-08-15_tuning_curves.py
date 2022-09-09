@@ -60,8 +60,8 @@ filePathops = 'D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+res+'suite2p
 
 
 signal= np.load(filePathF, allow_pickle=True)
-#filePathiscell = 'D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+res+'suite2p//plane'+plane_number+'//iscell.npy'
-filePathiscell = 'C://Suite2P_output//'+animal+ '//'+date+ '//'+res+'suite2p//plane'+plane_number+'//iscell.npy'
+filePathiscell = 'D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+res+'suite2p//plane'+plane_number+'//iscell.npy'
+#filePathiscell = 'C://Suite2P_output//'+animal+ '//'+date+ '//'+res+'suite2p//plane'+plane_number+'//iscell.npy'
 iscell = np.load(filePathiscell, allow_pickle=True)
 #loading ops file to get length of first experiment
 ops =  np.load(filePathops, allow_pickle=True)
@@ -78,7 +78,7 @@ print("frames per folder:",ops["frames_per_folder"])
 exp= np.array(ops["frames_per_folder"])
 
 #%%
-experiment = '2'
+experiment = '1'
 filePathmeta = 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//NiDaqInput'+file_number+'.bin'
 filePathlog =  'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//Log'+log_number+'.csv'
 filePathArduino = 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//ArduinoInput'+file_number+'.csv'
@@ -161,7 +161,7 @@ elif types_of_stim == 24:
         contrast_str = ["0","0.125", "0.25", "0.5", "0.75", "1"]
         
 #%%stimulus identity
-all_parameters = fun.Get_Stim_Identity(log = log, reps = 30, types_of_stim =24, protocol_type = "Contrast")
+all_parameters = fun.Get_Stim_Identity(log = log, reps = 30, types_of_stim =24, protocol_type = "SFreq")
 
 #%%behaviour
 running_behaviour = fun.running_info(filePathArduino, plot = True)
@@ -362,6 +362,10 @@ for neuron in range(aligned.shape[2]):
     plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//'+res+'//plane'+plane_number+'//all_oris//running_v_rest//cell'+str(neuron)+'.png')
 
 #%%plotting for other gratings protocol
+
+import cProfile, pstats, io
+pr = cProfile.Profile()
+pr.enable()
 for neuron in range(aligned.shape[2]):
 #for neuron in range(40,42):
     fig,ax = plt.subplots(6,4, sharex = True, sharey = True)
@@ -425,10 +429,20 @@ for neuron in range(aligned.shape[2]):
     
     plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//Contrast//all_oris//test//running_vs_rest/cell'+str(neuron)+'.png')
 
+pr.disable()
+
+s = io.StringIO()
+ps = pstats.Stats(pr, stream=s).sort_stats("cumtime")
+ps.print_stats()
+print(s.getvalue())
 #%%plotting all orientations and all temp frequencies
+
+import cProfile, pstats, io
+pr = cProfile.Profile()
+pr.enable()
 all_TFreq = all_parameters
-for neuron in range(aligned.shape[2]):
-#for neuron in range(107,111):       
+#for neuron in range(aligned.shape[2]):
+for neuron in range(10,11):       
             fig,ax = plt.subplots(6,4, sharex = True, sharey = True)
         
             for angle in range(0,4):
@@ -441,8 +455,19 @@ for neuron in range(aligned.shape[2]):
                     #ax[freq,0].set_title(str(sfreq_str[freq]))
                     ax[freq,0].set_title(str(contrast_str[freq]))
             plt.xlabel("Time(ms)")
-            plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//Contrast//all_oris//test//cell'+str(neuron)+'.png')
+            plt.close(fig)
+            #plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//Contrast//all_oris//test//cell'+str(neuron)+'.png')
 
+
+pr.disable()
+
+s = io.StringIO()
+ps = pstats.Stats(pr, stream=s).sort_stats("cumtime")
+ps.reverse_order().print_stats()
+
+print(s.getvalue())
+
+#ps.dump("stats_time")
 
 
 
