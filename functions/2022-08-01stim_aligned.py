@@ -24,10 +24,10 @@ more updated stim aligning protocol, uses more recent functions
 
 animal=  'Glaucus'
 #animal = input("animal name ")
-date= '2022-08-10'
+date= '2022-08-18'
 #date = input("date ")
 #note: if experiment type not known, put 'suite2p' instead
-experiment = '3'
+experiment = '2'
 #%%
 #experiment = input("experiment number(integer only) ")
 #experiment_int = int(experiment)

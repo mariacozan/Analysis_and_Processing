@@ -233,14 +233,17 @@ def GetStimulusInfo(filePath,props):
 
     """
     
-    
+      
 
     StimProperties  = []
     
     with open(filePath, newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+    
+            
         for row in reader:
             a = []
+            
             for p in range(len(props)):
                 # m = re.findall(props[p]+'=(\d*)', row[np.min([len(row)-1,p])])
                 m = re.findall(props[p]+'=([a-zA-Z0-9_.-]*)', row[np.min([len(row)-1,p])])
@@ -541,7 +544,7 @@ def Get_Stim_Identity(log, reps, protocol_type, types_of_stim):
     #all_TFreq = np.zeros((angles.shape[0], reps, TFreq.shape[0])).astype(int)
     #all_SFreq = np.zeros((angles.shape[0], reps, SFreq.shape[0])).astype(int)
     all_parameters = np.zeros((angles.shape[0], TFreq.shape[0], reps)).astype(int)
-    all_oris = np.zeros((angles.shape[0], reps)).astype(int)
+    #all_oris = np.zeros((angles.shape[0], reps)).astype(int)
     
     for angle in range(angles.shape[0]):
         
@@ -561,9 +564,9 @@ def Get_Stim_Identity(log, reps, protocol_type, types_of_stim):
                 specific_contrast = np.where((log[:,0] == angles[angle]) & (log[:,3] == contrast[freq])) [0]            
                 all_parameters[angle, freq, :] = specific_contrast
                 
-        if protocol_type == "simple":
-            specific_P = np.where((log[:,0] == angles[angle]) & (log[:,2] == 2)) [0]
-            all_oris[angle, :] = specific_P
+        # if protocol_type == "simple":
+        #     specific_P = np.where((log[:,0] == angles[angle])) [0]
+        #     all_oris[angle, :] = specific_P
     #return all_oris
     return all_parameters
         
@@ -618,8 +621,7 @@ def behaviour_reps (log, types_of_stim,reps, protocol_type, speed, time, stim_on
 
 
     speed_time = np.stack((time, speed)).T
-    rep_running = []
-    rep_stationary = []
+   
     for rep in range(stim_on.shape[0]-1):
             start = np.where(stim_on_round[rep] == speed_time[:,0])[0]
             stop = np.where(stim_off_round[rep] == speed_time[:,0])[0]
@@ -653,6 +655,7 @@ def behaviour_reps (log, types_of_stim,reps, protocol_type, speed, time, stim_on
     """
     for running
     """      
+    #running = np.ones((4, 6,  30))*np.nan
     running = []
 
     #creates a list of arrays by looking in the log file and sorting the indices based on the desired angles, freq 
@@ -662,6 +665,7 @@ def behaviour_reps (log, types_of_stim,reps, protocol_type, speed, time, stim_on
                     for freq in range(TFreq.shape[0]):
                         
                         specific_SF_r = np.where((log[:,0] == angles[angle]) & (log[:,1] == SFreq[freq]) & (log[:,3] == 1) & (log[:,4] ==1)) [0]
+                        #running[angle, freq,:] = specific_SF_r
                         running.append(specific_SF_r)
                         
                 if protocol_type == "TFreq":
@@ -669,11 +673,13 @@ def behaviour_reps (log, types_of_stim,reps, protocol_type, speed, time, stim_on
                         
                         specific_TF_r = np.where((log[:,0] == angles[angle]) & (log[:,2] == TFreq[freq]) & (log[:,3] == 1) & (log[:,4] ==1)) [0]
                         running.append(specific_TF_r)
+                        #running[angle, freq,:] = specific_TF_r
                         
                 if protocol_type == "Contrast":
                     for freq in range(TFreq.shape[0]):
                         specific_contrast_r = np.where((log[:,0] == angles[angle]) & (log[:,2] == contrast[freq]) & (log[:,4] ==1)) [0]
                         running.append(specific_contrast_r)
+                        #running[angle, freq, :] = specific_contrast_r
                 elif protocol_type == "simple": 
                     
                     specific_P_r = np.where((log[:,0] == angles[angle]) & (log[:,4] ==1)) [0]

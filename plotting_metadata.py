@@ -10,11 +10,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import os
 import pandas as pd
-
+import functions2022_07_15 as fun
 
 #defining path
-animal=  'Hedes'
-date= '2022-08-05'
+animal=  'Glaucus'
+date= '2022-08-10'
 
 exp_nr= 3
 experiment= str(exp_nr)
@@ -22,13 +22,19 @@ experiment= str(exp_nr)
 #NDIN is the number in the NiDaq binary file, bear in mind this is not always experiment number - 1, always double check
 #NDIN= exp_nr-1
 #in case number is not exp number - 1 then put it in manually here:
-NDIN = 2
+NDIN = exp_nr-1
 NiDaqInputNo= str(NDIN)
 
 filePathInput='Z://RawData//'+animal+ '//'+date+ '//'+experiment+ '//NiDaqInput'+NiDaqInputNo+'.bin'
 #need to add custom titles for plots
 filePathOutput2s= 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+ '//metadata_2seconds-interval.png'
 filePathOutput500ms= 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+ '//metadata_500ms-interval.png'
+
+filePathArduino = 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//ArduinoInput'+NiDaqInputNo+'.csv'
+filePathOutputArduino= 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+ '//ArduinoData500ms.png'
+filePathOutputspeed= 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+ '//speed.png'
+
+#%%
 #path= 'Z:/RawData/Eos/2022-05-04/1/NiDaqInput0.bin'
 
 def GetMetadataChannels(niDaqFilePath, numChannels = 4):
@@ -52,10 +58,10 @@ def GetMetadataChannels(niDaqFilePath, numChannels = 4):
     niDaq = np.reshape(niDaq,(int(len(niDaq)/numChannels),numChannels))
     return niDaq
 #specify how many channels there are in the binary file, check in bonsai script
-numChannels= 4
+numChannels= 5
 
-start_short = 15000
-end_short = 15500
+start_short = 0
+end_short = -1
 start_long = 50000
 end_long = 52000
 meta= GetMetadataChannels(filePathInput, numChannels=numChannels)
@@ -184,7 +190,33 @@ if numChannels == 5:
     plt.subplots_adjust(wspace=0.7, hspace=0.7)
     
     plt.savefig(filePathOutput500ms)
+#%%
+running_behaviour = fun.running_info(filePathArduino, plot = True)
+channels = running_behaviour[0]
 
+forward = channels[:,0]
+backward = channels [:,1]
+time_stamps = running_behaviour[1]
+
+WheelMovement = fun.DetectWheelMove(forward, backward, timestamps = time_stamps)
+
+
+arduinoTime = channels[:,-1]/1000 
+# Start arduino time at zero
+arduinoTime-=arduinoTime[0]
+    
+speed = WheelMovement[0]
+fig,ax = plt.subplots()
+ax.plot(speed)
+plt.savefig(filePathOutputspeed)
+
+#%%
+f,ax = plt.subplots(channels[1].shape[0],sharex=True)
+for i in range(channels[1].shape[0]):
+    ax[i].plot(channels[15000:15500,i])
+plt.savefig(filePathOutputArduino)
+#%%
+#ax[1].plot(forward)
 #more optimised code for plotting for any number of channels but doesn't have titles for subplots yet
 
 # fig, axs = plt.subplots(tmeta.shape[0], sharex=True)

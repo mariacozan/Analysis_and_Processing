@@ -28,18 +28,18 @@ more updated stim aligning protocol, uses more recent functions
 
 #getting the signal, for now using the raw F
 
-animal=  'Hedes'
+animal=  'Glaucus'
 #animal = input("animal name ")
-date= '2022-08-05'
+date= '2022-08-18'
 #date = input("date ")
 #note: if experiment type not known, put 'suite2p' instead
-experiment = '1'
+experiment = '2'
 #%%
 #experiment = input("experiment number(integer only) ")
 #experiment_int = int(experiment)
 #the file number of the NiDaq file, not alway experiment-1 because there might have been an issue with a previous acquisition etc
-file_number = '0'
-log_number = '0'
+file_number = '1'
+log_number = '1'
 plane_number = '1'
 plane_number_int = int(plane_number)
 #%%
@@ -52,7 +52,7 @@ plane_number_int = int(plane_number)
 nr_planes = 4
 #types of stim refers to the different combos of stim you can have depending on oris and parameters used (for simple gratings this is 12 and for all others it is 24)
 types_of_stim = 24
-res = ''
+res = '2//'
 filePathF ='D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+res+'suite2p//plane'+plane_number+'//F.npy'
 filePathops = 'D://Suite2Pprocessedfiles//'+animal+ '//'+date+ '//'+res+'suite2p//plane'+plane_number+'//ops.npy'#
 #filePathF ='C://Suite2P_output//'+animal+ '//'+date+ '//'+res+'suite2p//plane'+plane_number+'//F.npy'
@@ -78,7 +78,7 @@ print("frames per folder:",ops["frames_per_folder"])
 exp= np.array(ops["frames_per_folder"])
 
 #%%
-experiment = '1'
+#experiment = '1'
 filePathmeta = 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//NiDaqInput'+file_number+'.bin'
 filePathlog =  'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//Log'+log_number+'.csv'
 filePathArduino = 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//ArduinoInput'+file_number+'.csv'
@@ -103,11 +103,13 @@ print("please choose the relevant experiment below! stim on or off etc")
 
 
 #%%
+#signal_cells = Csignal_cells
+
 
 stim_on = photodiode_change[0::2]
 stim_off = photodiode_change[2::2]
 
-
+exp_name = 'SFreq'
 """
 Step 3: actually aligning the stimuli with the traces (using Liad's function)
 """
@@ -130,7 +132,19 @@ aligned_all = fun.AlignStim(signal= signal_cells, time= frames_plane1, eventTime
 aligned = aligned_all[0]
 
 
+aligned_all_off = fun.AlignStim(signal= signal_cells, time= frames_plane1, eventTimes= stim_off, window= window,timeLimit=1000)
+aligned_off = aligned_all_off[0]
+
+
 time = aligned_all[1]
+time_off = aligned_all_off[1]
+
+#%%
+np.save('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//aligned_gratings_good.npy', aligned)
+np.save('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//aligned_gratings_off.npy', aligned_off)
+np.save('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//time.npy', time)
+np.save('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//time_off.npy', time_off)
+
 #%%
 
 """
@@ -144,6 +158,7 @@ Log_list = fun.GetStimulusInfo (filePathlog, props = ["Ori", "SFreq", "TFreq", "
 log = np.array(pd.DataFrame(Log_list).values).astype(np.float64)
 
 #log[0] is the degrees, log[1] would be spatial freq etc (depending on the order in the log list)
+np.save('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//log.npy', log)
 
 #%%
 
@@ -161,8 +176,8 @@ elif types_of_stim == 24:
         contrast_str = ["0","0.125", "0.25", "0.5", "0.75", "1"]
         
 #%%stimulus identity
-all_parameters = fun.Get_Stim_Identity(log = log, reps = 30, types_of_stim =24, protocol_type = "SFreq")
-
+all_parameters = fun.Get_Stim_Identity(log = log, reps = 30, types_of_stim =24, protocol_type = "TFreq")
+np.save('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//all_parameters.npy', all_parameters)
 #%%behaviour
 running_behaviour = fun.running_info(filePathArduino, plot = True)
 channels = running_behaviour[0]
@@ -194,14 +209,20 @@ corrected_time = np.around(corrected_time, decimals = 2)
 zero = np.zeros((aligned.shape[1])).reshape(aligned.shape[1], )
 log = np.column_stack((log, zero))
 
-reps_behaviour = fun.behaviour_reps(log = log, types_of_stim = 24, reps = 30, protocol_type = "Contrast", speed = speed, time = corrected_time, stim_on = stim_on, stim_off = stim_off)
+reps_behaviour = fun.behaviour_reps(log = log, types_of_stim = 24, reps = 30, protocol_type = "TFreq", speed = speed, time = corrected_time, stim_on = stim_on, stim_off = stim_off)
 #the above function gives the reps for each orientation for running and for rest states
-
 #%%
 running = reps_behaviour[0]
 rest = reps_behaviour[1]
+#saving the list of arrays as actual arrays
+# running_array = np.ones((24, 30))*np.nan
+# rest_array = np.ones((24,30))*np.nan
 
 
+#%%
+
+np.save('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//reps_running.npy', running)
+np.save('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//reps_rest.npy', rest)
 #%%reshaping for protocols other than simple gratings
 # # reshaping the above to be sorted as (no. of angles, no. of freq, no. of reps for each)
 # running = running_oris.reshape(4, 6, running_oris.shape[1]).astype("int64")
@@ -527,70 +548,71 @@ for neuron in range(23,25):
             #plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//'+res+'//plane'+plane_number+'//SFreq//test//cell'+str(neuron)+'.png')
 
 #%%
-angle = 1
-freq = 5
-neuron = 24
-fig,ax = plt.subplots()
-ax.plot(time,aligned[:, all_parameters[angle,:,freq], neuron], c = "lightgrey")
-ax.plot(time,aligned[:, 3, neuron], c = "red")
-#%%
-angle = 0
-freq = 0
-neuron  = 1
+# angle = 1
+# freq = 5
+# neuron = 24
+# fig,ax = plt.subplots()
+# ax.plot(time,aligned[:, all_parameters[angle,:,freq], neuron], c = "lightgrey")
+# ax.plot(time,aligned[:, 3, neuron], c = "red")
+# #%%
+# angle = 0
+# freq = 0
+# neuron  = 1
 
-#fig,ax = plt.subplots(1, sharex = True, sharey = True)
-plt.plot(aligned[:, all_parameters[angle,:,freq], neuron], c = "lightgrey")
-#plt.plot(aligned[:,all_parameters[angle,0, freq] , neuron].mean(axis = 1), c = "black")
-plt.axvline(x=15, c="red", linestyle="dashed", linewidth = 1)
-#ax[0,angle].set_title(str(angles_str[angle]))
-#ax[freq,0].set_title(str(sfreq_str[freq]))
+# #fig,ax = plt.subplots(1, sharex = True, sharey = True)
+# plt.plot(aligned[:, all_parameters[angle,:,freq], neuron], c = "lightgrey")
+# #plt.plot(aligned[:,all_parameters[angle,0, freq] , neuron].mean(axis = 1), c = "black")
+# plt.axvline(x=15, c="red", linestyle="dashed", linewidth = 1)
+# #ax[0,angle].set_title(str(angles_str[angle]))
+# #ax[freq,0].set_title(str(sfreq_str[freq]))
                     
 #%%
 #now need to create arrays which contain the average intensity per rep with baseline (500ms before stim onset), so for each orientation need one single value
 #this value will then be plotted according to the orientation and/or other parameter (spatial/temporal tuning curve)
 
-angle = 0
-neuron = 0
+# angle = 0
+# neuron = 0
 
-#for one angle and running data only:
+# #for one angle and running data only:
 
-one = aligned[:,running_oris[angle], neuron]
-baseline = aligned[0:8,running_oris[angle], neuron].mean(axis = 0)
-trace = aligned[8:,running_oris[angle], neuron].mean(axis = 0)
-norm = trace - baseline
+# one = aligned[:,running_oris[angle], neuron]
+# baseline = aligned[0:8,running_oris[angle], neuron].mean(axis = 0)
+# trace = aligned[8:,running_oris[angle], neuron].mean(axis = 0)
+# norm = trace - baseline
 #%%
-#for one angle and all oris
+# #for one angle and all oris
+# all_oris = all_parameters
 
-one = aligned[:,all_oris[angle], neuron]
-baseline = aligned[0:8,all_oris[angle], neuron].mean(axis = 0)
-trace = aligned[8:,all_oris[angle], neuron].mean(axis = 0)
-norm = (trace - baseline).mean(axis = 0)
-#%%
-#for all neurons and angles
-mean_values = np.zeros((angles.shape[0],aligned.shape[2]))
-for neuron in range(aligned.shape[2]):
-    fig,ax = plt.subplots(1, sharex = True, sharey = True)
-    for angle in range(angles.shape[0]):
-        baseline = aligned[0:8,all_oris[angle], neuron].mean(axis = 0)
-        trace = aligned[8:,all_oris[angle], neuron].mean(axis = 0)
-        norm = (trace - baseline).mean(axis = 0)
-        mean_values[angle, neuron] = norm 
+# one = aligned[:,all_oris[angle], neuron]
+# baseline = aligned[0:8,all_oris[angle], neuron].mean(axis = 0)
+# trace = aligned[8:,all_oris[angle], neuron].mean(axis = 0)
+# norm = (trace - baseline).mean(axis = 0)
+# #%%
+# #for all neurons and angles
+# mean_values = np.zeros((angles.shape[0],aligned.shape[2]))
+# for neuron in range(aligned.shape[2]):
+#     fig,ax = plt.subplots(1, sharex = True, sharey = True)
+#     for angle in range(angles.shape[0]):
+#         baseline = aligned[0:8,all_oris[angle], neuron].mean(axis = 0)
+#         trace = aligned[8:,all_oris[angle], neuron].mean(axis = 0)
+#         norm = (trace - baseline).mean(axis = 0)
+#         mean_values[angle, neuron] = norm 
     
-    ax.plot(angles,mean_values[:,neuron])
-    plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//'+res+'//plane'+plane_number+'//tuning_curves//cell'+str(neuron)+'.png', transparent = True)
+#     ax.plot(angles,mean_values[:,neuron])
+#     plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//'+res+'//plane'+plane_number+'//tuning_curves//cell'+str(neuron)+'.png', transparent = True)
 
 #%%trying a function from online to plot mean and sem
-import scipy
+# import scipy
 
-def plot_mean_and_sem(array, axis=0):
-    mean = array.mean(axis=axis)
-    sem_plus = mean + scipy.stats.sem(array, axis=axis)
-    sem_minus = mean - scipy.stats.sem(array, axis=axis)
+# def plot_mean_and_sem(array, axis=0):
+#     mean = array.mean(axis=axis)
+#     sem_plus = mean + scipy.stats.sem(array, axis=axis)
+#     sem_minus = mean - scipy.stats.sem(array, axis=axis)
     
-    plt.fill_between(np.arange(mean.shape[0]), sem_plus, sem_minus, alpha=0.5)
-    plt.plot(mean)
+#     plt.fill_between(np.arange(mean.shape[0]), sem_plus, sem_minus, alpha=0.5)
+#     plt.plot(mean)
     
-plot_mean_and_sem(aligned[17:,running_oris[2], 24])
+# plot_mean_and_sem(aligned[17:,running_oris[2], 24])
 
 #%%ori and direction tuning curves
 import scipy
@@ -653,14 +675,16 @@ for neuron in range(aligned.shape[2]):
     plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//'+res+'//plane'+plane_number+'//tuning_curves//behaviour//cell'+str(neuron)+'.png')
 
 #%%freq/contrast tuning curves
+#aligned = Caligned_all_exp
 running_oris = reps_behaviour[0]
 rest_oris = reps_behaviour[1]
+SFreq = TFreq
 #for all neurons and angles
 running_values= np.zeros((angles.shape[0], SFreq.shape[0], aligned.shape[2]))
 rest_values = np.zeros((angles.shape[0], SFreq.shape[0],aligned.shape[2]))
 for neuron in range(1):
 #for neuron in range(aligned.shape[2]):
-    fig,ax = plt.subplots(4, sharex = True, sharey = True)
+    #fig,ax = plt.subplots(4, sharex = True, sharey = True)
     
     for angle in range(angles.shape[0]):
         for freq in range(SFreq.shape[0]):
@@ -681,9 +705,10 @@ for neuron in range(1):
 
 #%%creating all the tuning curve data
 import scipy
-running_oris = reps_behaviour[0]
-rest_oris = reps_behaviour[1]
 
+SFreq = TFreq
+running_oris = running
+rest_oris = rest
 neuron = 24
 running_values0= np.zeros((SFreq.shape[0],aligned.shape[2]))
 all_sem_p0 = np.zeros((SFreq.shape[0],aligned.shape[2]))
@@ -813,9 +838,9 @@ for neuron in range(aligned.shape[2]):
             
             rest_values270[freq, neuron] = norm270_r            
  #%% plotting frequency tuning curves
-#running_values = np.stack((running_values0, running_values90, running_values180, running_values270))
+##running_values = np.stack((running_values0, running_values90, running_values180, running_values270))
 #for neuron in range(aligned.shape[2]):
-for neuron in range(24,25):    
+for neuron in range(0,1):    
     fig,ax = plt.subplots(2,2, sharex = True, sharey = True)
     
     ax[0,0].scatter(SFreq,running_values0[:,neuron], c = "teal")
@@ -850,9 +875,9 @@ for neuron in range(24,25):
     ax[1,1].fill_between(SFreq, all_sem_p270_r[:,neuron], all_sem_m270_r[:,neuron], alpha=0.5, color = "purple")
     ax[1,1].set_title(str(angles_str[3]) + " degrees", loc = "center")
     
-    fig.text(0.5, 0.04, "Frequency(cycles/sec)", ha = "center")
-    plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//'+res+'//plane'+plane_number+'//SFreq//all_oris//running_vs_rest//tuning_curves//cell'+str(neuron)+'.png')
-
+    fig.text(0.5, 0.04, "                Frequency(cycles/sec)      ROI-"+str(neuron), ha = "center")
+    #plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//all_oris//running_vs_rest//tuning_curves//cell'+str(neuron)+'.png')
+    #plt.close()
 
 #now need to plot the mean for each freq for all those separte angles
 #running_values= np.zeros((angles.shape[0], SFreq.shape[0], aligned.shape[2]))
@@ -860,6 +885,316 @@ for neuron in range(24,25):
 #trace = aligned[8:,running_oris[0:6], neuron].mean(axis = 0)
 #norm = (trace - baseline).mean(axis = 0)
 #running_values[angle, freq, neuron] = norm
+
+
+#%%getting max values for population distribution temp freq
+#getting the index where the max value lies for each neuron for each orientation
+rest0_max = np.zeros((aligned.shape[2]))
+running0_max = np.zeros((aligned.shape[2]))
+for neuron in range(aligned.shape[2]):
+    
+    rest0_max_temp = np.where(rest_values0[:,neuron] == np.max(rest_values0[:,neuron]))[0]
+    rest0_max[neuron] = rest0_max_temp
+    running0_max_temp = np.where(running_values0[:,neuron] == np.max(running_values0[:,neuron]))[0]
+    running0_max[neuron] = running0_max_temp
+
+running0_max[running0_max == 0] = 0.5
+running0_max[running0_max == 3] = 4
+running0_max[running0_max == 4] = 8
+running0_max[running0_max == 5] = 16
+rest0_max[rest0_max == 0] = 0.5
+rest0_max[rest0_max == 3] = 4
+rest0_max[rest0_max == 4] = 8
+rest0_max[rest0_max == 5] = 16
+
+rest90_max = np.zeros((aligned.shape[2]))
+running90_max = np.zeros((aligned.shape[2]))
+for neuron in range(aligned.shape[2]):
+    
+    rest90_max_temp = np.where(rest_values90[:,neuron] == np.max(rest_values90[:,neuron]))[0]
+    rest90_max[neuron] = rest90_max_temp
+    running90_max_temp = np.where(running_values90[:,neuron] == np.max(running_values90[:,neuron]))[0]
+    running90_max[neuron] = running90_max_temp
+
+running90_max[running90_max == 0] = 0.5
+running90_max[running90_max == 3] = 4
+running90_max[running90_max == 4] = 8
+running90_max[running90_max == 5] = 16
+rest90_max[rest90_max == 0] = 0.5
+rest90_max[rest90_max == 3] = 4
+rest90_max[rest90_max == 4] = 8
+rest90_max[rest90_max == 5] = 16
+    
+rest180_max = np.zeros((aligned.shape[2]))
+running180_max = np.zeros((aligned.shape[2]))
+for neuron in range(aligned.shape[2]):
+    
+    rest180_max_temp = np.where(rest_values180[:,neuron] == np.max(rest_values180[:,neuron]))[0]
+    rest180_max[neuron] = rest180_max_temp
+    running180_max_temp = np.where(running_values180[:,neuron] == np.max(running_values180[:,neuron]))[0]
+    running180_max[neuron] = running180_max_temp
+
+running180_max[running180_max == 0] = 0.5
+running180_max[running180_max == 3] = 4
+running180_max[running180_max == 4] = 8
+running180_max[running180_max == 5] = 16
+rest180_max[rest180_max == 0] = 0.5
+rest180_max[rest180_max == 3] = 4
+rest180_max[rest180_max == 4] = 8
+rest180_max[rest180_max == 5] = 16
+    
+rest270_max = np.zeros((aligned.shape[2]))
+running270_max = np.zeros((aligned.shape[2]))
+for neuron in range(aligned.shape[2]):
+    
+    rest270_max_temp = np.where(rest_values270[:,neuron] == np.max(rest_values270[:,neuron]))[0]
+    rest270_max[neuron] = rest270_max_temp
+    running270_max_temp = np.where(running_values270[:,neuron] == np.max(running_values270[:,neuron]))[0]
+    running270_max[neuron] = running270_max_temp  
+
+running270_max[running270_max == 0] = 0.5
+running270_max[running270_max == 3] = 4
+running270_max[running270_max == 4] = 8
+running270_max[running270_max == 5] = 16
+rest270_max[rest270_max == 0] = 0.5
+rest270_max[rest270_max == 3] = 4
+rest270_max[rest270_max == 4] = 8
+rest270_max[rest270_max == 5] = 16
+
+
+
+
+
+#%%getting max values for pupulation distribution spatial freq
+#getting the index where the max value lies for each neuron for each orientation
+rest0_max = np.zeros((aligned.shape[2]))
+running0_max = np.zeros((aligned.shape[2]))
+for neuron in range(aligned.shape[2]):
+    
+    rest0_max_temp = np.where(rest_values0[:,neuron] == np.max(rest_values0[:,neuron]))[0]
+    rest0_max[neuron] = rest0_max_temp
+    running0_max_temp = np.where(running_values0[:,neuron] == np.max(running_values0[:,neuron]))[0]
+    running0_max[neuron] = running0_max_temp
+
+running0_max[running0_max == 0] = 0.5
+running0_max[running0_max == 3] = 4
+running0_max[running0_max == 4] = 8
+running0_max[running0_max == 5] = 16
+rest0_max[rest0_max == 0] = 0.5
+rest0_max[rest0_max == 3] = 4
+rest0_max[rest0_max == 4] = 8
+rest0_max[rest0_max == 5] = 16
+
+rest90_max = np.zeros((aligned.shape[2]))
+running90_max = np.zeros((aligned.shape[2]))
+for neuron in range(aligned.shape[2]):
+    
+    rest90_max_temp = np.where(rest_values90[:,neuron] == np.max(rest_values90[:,neuron]))[0]
+    rest90_max[neuron] = rest90_max_temp
+    running90_max_temp = np.where(running_values90[:,neuron] == np.max(running_values90[:,neuron]))[0]
+    running90_max[neuron] = running90_max_temp
+
+running90_max[running90_max == 0] = 0.5
+running90_max[running90_max == 3] = 4
+running90_max[running90_max == 4] = 8
+running90_max[running90_max == 5] = 16
+rest90_max[rest90_max == 0] = 0.5
+rest90_max[rest90_max == 3] = 4
+rest90_max[rest90_max == 4] = 8
+rest90_max[rest90_max == 5] = 16
+    
+rest180_max = np.zeros((aligned.shape[2]))
+running180_max = np.zeros((aligned.shape[2]))
+for neuron in range(aligned.shape[2]):
+    
+    rest180_max_temp = np.where(rest_values180[:,neuron] == np.max(rest_values180[:,neuron]))[0]
+    rest180_max[neuron] = rest180_max_temp
+    running180_max_temp = np.where(running_values180[:,neuron] == np.max(running_values180[:,neuron]))[0]
+    running180_max[neuron] = running180_max_temp
+
+running180_max[running180_max == 0] = 0.5
+running180_max[running180_max == 3] = 4
+running180_max[running180_max == 4] = 8
+running180_max[running180_max == 5] = 16
+rest180_max[rest180_max == 0] = 0.5
+rest180_max[rest180_max == 3] = 4
+rest180_max[rest180_max == 4] = 8
+rest180_max[rest180_max == 5] = 16
+    
+rest270_max = np.zeros((aligned.shape[2]))
+running270_max = np.zeros((aligned.shape[2]))
+for neuron in range(aligned.shape[2]):
+    
+    rest270_max_temp = np.where(rest_values270[:,neuron] == np.max(rest_values270[:,neuron]))[0]
+    rest270_max[neuron] = rest270_max_temp
+    running270_max_temp = np.where(running_values270[:,neuron] == np.max(running_values270[:,neuron]))[0]
+    running270_max[neuron] = running270_max_temp  
+
+running270_max[running270_max == 0] = 0.5
+running270_max[running270_max == 3] = 4
+running270_max[running270_max == 4] = 8
+running270_max[running270_max == 5] = 16
+rest270_max[rest270_max == 0] = 0.5
+rest270_max[rest270_max == 3] = 4
+rest270_max[rest270_max == 4] = 8
+rest270_max[rest270_max == 5] = 16
+
+#%%plotting histos
+
+bins = 16 #[0.5, 1, 2, 4, 8, 16 ]
+fig,ax = plt.subplots(2,2, sharex = True, sharey = True)
+
+ax[0,0].hist(running0_max, bins = bins, color ="teal", log = True, )
+ax[0,0].hist(rest0_max, bins = bins, color= "purple", alpha = 0.5, log = True)
+ax[0,0].set_title(str(angles_str[0]) + " degrees", loc = "center")
+ax[0,1].hist(running90_max, bins = bins, color ="teal", label = "running", log = True) 
+ax[0,1].hist(rest90_max, bins = bins, color= "purple", alpha = 0.5, label = "rest", log = True)  
+ax[0,1].legend()    
+ax[0,1].set_title(str(angles_str[1]) + " degrees", loc = "center") 
+ax[1,0].hist(running180_max, bins = bins, color= "teal", log = True)    
+ax[1,0].hist(rest180_max, bins = bins, color = "purple", alpha = 0.5, log = True)  
+ax[1,0].set_title(str(angles_str[2]) + " degrees", loc = "center")
+ax[1,1].hist(running270_max, bins = bins, color = "teal", log = True)    
+ax[1,1].hist(rest270_max, bins = bins, color="purple", alpha = 0.5, log = True)  
+ax[1,1].set_title(str(angles_str[3]) + " degrees", loc = "center")
+#.title("Temporal frequency")
+fig.text(0.5, 0.04, "                Temporal Frequency      ", ha = "center")
+#plt.xticks(ticks = [0.5, 4, 8, 16, ])
+#plt.ylabel("# of neurons", loc = "bottom", fontsize = 16)
+fig.text(0.04, 0.5, '# of neurons', va='center', rotation='vertical')
+plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//population_preference.png')
+
+#%%getting max values for pupulation distribution spatial freq
+#getting the index where the max value lies for each neuron for each orientation
+rest0_max = np.zeros((aligned.shape[2]))
+running0_max = np.zeros((aligned.shape[2]))
+for neuron in range(aligned.shape[2]):
+    
+    rest0_max_temp = np.where(rest_values0[:,neuron] == np.max(rest_values0[:,neuron]))[0]
+    rest0_max[neuron] = rest0_max_temp
+    running0_max_temp = np.where(running_values0[:,neuron] == np.max(running_values0[:,neuron]))[0]
+    running0_max[neuron] = running0_max_temp
+
+
+rest90_max = np.zeros((aligned.shape[2]))
+running90_max = np.zeros((aligned.shape[2]))
+for neuron in range(aligned.shape[2]):
+    
+    rest90_max_temp = np.where(rest_values90[:,neuron] == np.max(rest_values90[:,neuron]))[0]
+    rest90_max[neuron] = rest90_max_temp
+    running90_max_temp = np.where(running_values90[:,neuron] == np.max(running_values90[:,neuron]))[0]
+    running90_max[neuron] = running90_max_temp
+
+
+    
+rest180_max = np.zeros((aligned.shape[2]))
+running180_max = np.zeros((aligned.shape[2]))
+for neuron in range(aligned.shape[2]):
+    
+    rest180_max_temp = np.where(rest_values180[:,neuron] == np.max(rest_values180[:,neuron]))[0]
+    rest180_max[neuron] = rest180_max_temp
+    running180_max_temp = np.where(running_values180[:,neuron] == np.max(running_values180[:,neuron]))[0]
+    running180_max[neuron] = running180_max_temp
+
+
+    
+rest270_max = np.zeros((aligned.shape[2]))
+running270_max = np.zeros((aligned.shape[2]))
+for neuron in range(aligned.shape[2]):
+    
+    rest270_max_temp = np.where(rest_values270[:,neuron] == np.max(rest_values270[:,neuron]))[0]
+    rest270_max[neuron] = rest270_max_temp
+    running270_max_temp = np.where(running_values270[:,neuron] == np.max(running_values270[:,neuron]))[0]
+    running270_max[neuron] = running270_max_temp  
+
+#%%spatial freq
+
+rest_max = np.stack((rest0_max, rest90_max, rest180_max, rest270_max))
+running_max = np.stack((running0_max, running90_max, running180_max, running270_max))
+
+running_max[running_max[:,:] == 0] = 0.01
+running_max[running_max == 1] = 0.02
+running_max[running_max == 2] = 0.04
+running_max[running_max == 3] = 0.08
+running_max[running_max == 4] = 0.16
+running_max[running_max == 5] = 0.32
+rest_max[rest_max == 0] = 0.01
+rest_max[rest_max == 1] = 0.02
+rest_max[rest_max == 2] = 0.04
+rest_max[rest_max == 3] = 0.08
+rest_max[rest_max == 4] = 0.16
+rest_max[rest_max[:,:] == 5] = 0.32
+
+#%%temp freq
+rest_max = np.stack((rest0_max, rest90_max, rest180_max, rest270_max))
+running_max = np.stack((running0_max, running90_max, running180_max, running270_max))
+
+running_max[running_max[:,:] == 0] = 0.5
+running_max[running_max == 1] = 1
+running_max[running_max == 2] = 2
+running_max[running_max == 3] = 4
+running_max[running_max == 4] = 8
+running_max[running_max == 5] = 16
+rest_max[rest_max == 0] = 0.5
+rest_max[rest_max == 1] = 1
+rest_max[rest_max == 2] = 2
+rest_max[rest_max == 3] = 4
+rest_max[rest_max == 4] = 8
+rest_max[rest_max[:,:] == 5] = 16
+#%%SFreq
+
+bins = "auto"
+fig,ax = plt.subplots(2,2, sharex = True, sharey = True)
+
+ax[0,0].hist(running_max[0,:], bins = bins, color ="teal")
+ax[0,0].hist(rest_max[0,:], bins = bins, color= "purple", alpha = 0.5)
+ax[0,0].set_title(str(angles_str[0]) + " degrees", loc = "center")
+
+ax[0,1].hist(running_max[1,:], bins = bins, color ="teal", label = "running")
+ax[0,1].hist(rest_max[1,:], bins = bins, color= "purple", alpha = 0.5, label = "rest")  
+ax[0,1].legend()
+ax[0,1].set_title(str(angles_str[1]) + " degrees", loc = "center") 
+
+ax[1,0].hist(running_max[2,:], bins = bins, color= "teal")    
+ax[1,0].hist(rest_max[2,:], bins = bins, color = "purple", alpha = 0.5)  
+ax[1,0].set_title(str(angles_str[2]) + " degrees", loc = "center")
+
+ax[1,1].hist(running_max[3,:], bins = bins, color = "teal")    
+ax[1,1].hist(rest_max[3,:], bins = bins, color="purple", alpha = 0.5)  
+ax[1,1].set_title(str(angles_str[3]) + " degrees", loc = "center")
+#.title("Temporal frequency")
+fig.text(0.5, 0.04, "                Spatial Frequency      ", ha = "center")
+plt.xticks(ticks = [0.01, 0.08, 0.16, 0.32])
+#plt.ylabel("# of neurons", loc = "bottom", fontsize = 16)
+fig.text(0.04, 0.5, '# of neurons', va='center', rotation='vertical')
+#plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//population_preference.png')
+
+#%%TFreq
+bins = "doane"
+fig,ax = plt.subplots(2,2, sharex = True, sharey = True)
+
+ax[0,0].hist(running_max[0,:], bins = bins, color ="teal")
+ax[0,0].hist(rest_max[0,:], bins = bins, color= "purple", alpha = 0.5)
+ax[0,0].set_title(str(angles_str[0]) + " degrees", loc = "center")
+
+ax[0,1].hist(running_max[1,:], bins = bins, color ="teal", label = "running")
+ax[0,1].hist(rest_max[1,:], bins = bins, color= "purple", alpha = 0.5, label = "rest")  
+ax[0,1].legend()
+ax[0,1].set_title(str(angles_str[1]) + " degrees", loc = "center") 
+
+ax[1,0].hist(running_max[2,:], bins = bins, color= "teal")    
+ax[1,0].hist(rest_max[2,:], bins = bins, color = "purple", alpha = 0.5)  
+ax[1,0].set_title(str(angles_str[2]) + " degrees", loc = "center")
+
+ax[1,1].hist(running_max[3,:], bins = bins, color = "teal")    
+ax[1,1].hist(rest_max[3,:], bins = bins, color="purple", alpha = 0.5)  
+ax[1,1].set_title(str(angles_str[3]) + " degrees", loc = "center")
+#.title("Temporal frequency")
+fig.text(0.5, 0.04, "                Temporal Frequency      ", ha = "center")
+plt.xticks(ticks = [0.5, 1, 2, 4, 8, 16])
+#plt.ylabel("# of neurons", loc = "bottom", fontsize = 16)
+fig.text(0.04, 0.5, '# of neurons', va='center', rotation='vertical')
+plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//population_preference.png')
 
 #%%plotting the ori traces
 

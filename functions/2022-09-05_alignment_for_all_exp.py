@@ -27,14 +27,14 @@ animal=  'Hedes'
 date= '2022-08-05'
 #date = input("date ")
 #note: if experiment type not known, put 'suite2p' instead
-experiment = '1'
-exp_name = 'SFreq'
+experiment = '2'
+exp_name = 'Contrast'
 #%%
 #experiment = input("experiment number(integer only) ")
 #experiment_int = int(experiment)
 #the file number of the NiDaq file, not alway experiment-1 because there might have been an issue with a previous acquisition etc
-file_number = '0'
-log_number = '0'
+file_number = '1'
+log_number = '1'
 plane_number = '1'
 plane_number_int = int(plane_number)
 #%%
@@ -71,8 +71,8 @@ print("frames per folder:",ops["frames_per_folder"])
 exp= np.array(ops["frames_per_folder"])
 
 
-filePathaligned = 'D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//aligned_exp1.npy'
-aligned_test = np.load(filePathaligned, allow_pickle=True)
+# filePathaligned = 'D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//aligned_exp1.npy'
+# aligned_test = np.load(filePathaligned, allow_pickle=True)
 #%%getting the F trace of cells 
 #(and not ROIs not classified as cells) using a function I wrote
 signal_cells = fun.getcells(filePathF= filePathF, filePathiscell= filePathiscell).T
@@ -117,7 +117,6 @@ photodiode_change_exp1 = fun_ext.DetectPhotodiodeChanges(photodiode_exp1,plot= T
 photodiode_change_exp2 = fun_ext.DetectPhotodiodeChanges(photodiode_exp2,plot= True,kernel = 101,fs=1000, waitTime=10000)
 #photodiode_change_exp3 = fun_ext.DetectPhotodiodeChanges(photodiode_exp3,plot= True,kernel = 101,fs=1000, waitTime=10000)
 #%%
-#the above is indiscriminate photodiode change, when it's on even numbers that is the stim onset
 
 
 tmeta_exp1 = meta_exp1.T
@@ -132,7 +131,7 @@ frames_exp1 = fun_ext.AssignFrameTime(frame_clock_exp1, plot = False)
 frames_exp2 = fun_ext.AssignFrameTime(frame_clock_exp2, plot = False)
 #frames_exp3 = fun_ext.AssignFrameTime(frame_clock_exp3, plot = False)
 
-#%%
+
 
 #adding up the frame clocks
 addto_exp2 = frames_exp2 + frames_exp1[-1]
@@ -230,7 +229,7 @@ elif types_of_stim == 24:
         contrast_str = ["0","0.125", "0.25", "0.5", "0.75", "1"]
         
 #%%stimulus identity
-all_parameters = fun.Get_Stim_Identity(log = log, reps = 30, types_of_stim =24, protocol_type = "SFreq")
+all_parameters = fun.Get_Stim_Identity(log = log, reps = 30, types_of_stim =24, protocol_type = "Contrast")
 
 #%%behaviour
 running_behaviour = fun.running_info(filePathArduino, plot = True)
@@ -304,7 +303,7 @@ elif types_of_stim == 24:
 print("please choose right aligned traces!")
 aligned = aligned_exp1
 #for neuron in range(aligned.shape[2]):
-for neuron in range(35,37):
+for neuron in range(23,25):
     fig,ax = plt.subplots(6,4, sharex = True, sharey = True)
     
     
@@ -368,7 +367,7 @@ for neuron in range(35,37):
 
 
 #%%plotting all orientations and all temp frequencies
-aligned = aligned_exp1
+aligned = aligned_exp2
 all_TFreq = all_parameters
 for neuron in range(aligned.shape[2]):
 #for neuron in range(107,111):       
@@ -380,11 +379,50 @@ for neuron in range(aligned.shape[2]):
                     ax[freq,angle].plot(time, aligned[:,all_TFreq[angle,freq, :] , neuron].mean(axis = 1), c = "black")
                     ax[freq,angle].axvline(x=0, c="red", linestyle="dashed", linewidth = 1)
                     ax[0,angle].set_title(str(angles_str[angle]))
-                    ax[freq,0].set_title(str(tfreq_str[freq]))
+                    #ax[freq,0].set_title(str(tfreq_str[freq]))
                     #ax[freq,0].set_title(str(sfreq_str[freq]))
-                    #ax[freq,0].set_title(str(contrast_str[freq]))
+                    ax[freq,0].set_title(str(contrast_str[freq]))
             plt.xlabel("Time(ms)")
-            plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//TFreq//all_oris//test2//cell'+str(neuron)+'.png')
+            plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//Contrast//test2//cell'+str(neuron)+'.png')
 
 
-
+#%%plotting metadata vs trace
+#for neuron in range(aligned.shape[2]):
+for neuron in range(4,5):
+    photodiode = photodiode_exp1
+    kernel = 101
+    waitTime = 5000
+    upThreshold = 0.2
+    downThreshold = 0.4
+    sigFilt = photodiode
+        # sigFilt = sp.signal.filtfilt(b,a,photodiode)
+    sigFilt = sp.signal.medfilt(sigFilt,kernel)
+       
+      
+    maxSig = np.max(sigFilt)
+    minSig = np.min(sigFilt)
+    thresholdU = (maxSig-minSig)*upThreshold
+    thresholdD = (maxSig-minSig)*downThreshold
+    threshold =  (maxSig-minSig)*0.5
+        
+        # find thesehold crossings
+    crossingsU = np.where(np.diff(np.array(sigFilt > thresholdU).astype(int),prepend=False)>0)[0]
+    crossingsD = np.where(np.diff(np.array(sigFilt > thresholdD).astype(int),prepend=False)<0)[0]
+    crossingsU = np.delete(crossingsU,np.where(crossingsU<waitTime)[0])     
+    crossingsD = np.delete(crossingsD,np.where(crossingsD<waitTime)[0])   
+    crossings = np.sort(np.unique(np.hstack((crossingsU,crossingsD))))
+    
+    f,ax = plt.subplots(2,sharex= False)
+    ax[0].plot(photodiode,label='photodiode raw')
+    ax[0].plot(sigFilt,label = 'photodiode filtered')        
+    ax[0].plot(crossings,np.ones(len(crossings))*threshold,'g*')  
+    ax[0].hlines([thresholdU],0,len(photodiode),'k')
+    ax[0].hlines([thresholdD],0,len(photodiode),'k')
+            # ax.plot(st,np.ones(len(crossingsD))*threshold,'r*')  
+    #ax.legend()
+    ax[0].set_xlabel('time (ms)')
+    ax[0].set_ylabel('Amplitude (V)') 
+    
+    ax[1].plot(signal_cells[exp[0]:exp[0]+exp[1], neuron])
+    
+    #plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ ''+res+'//plane'+plane_number+'//classification//all//cell'+str(neuron)+'.png')
