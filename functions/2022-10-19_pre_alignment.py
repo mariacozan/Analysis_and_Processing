@@ -13,8 +13,8 @@ import scipy as sp
 from scipy.signal import butter,filtfilt,medfilt
 import csv
 import re
-import functions2022_07_15 as fun
-import extract_data as fun_ext
+import Analysis_and_Processing.functions as fun
+import Data.Bonsai.extract_data as fun_ext
 import os
 """
 more updated stim aligning protocol, uses more recent functions
@@ -27,14 +27,14 @@ animal=  'Giuseppina'
 date= '2022-11-03'
 #date = input("date ")
 #note: if experiment type not known, put 'suite2p' instead
-experiment = '1'
+experiment = '2'
 exp_no = int(experiment)
 #experiment = input("experiment number(integer only) ")
 #experiment_int = int(experiment)
 #the file number of the NiDaq file, not alway experiment-1 because there might have been an issue with a previous acquisition etc
-file_number = '0'
-log_number = '0'
-plane_number = '1'
+file_number = '2'
+log_number = '2'
+plane_number = '2'
 plane_number_int = int(plane_number)
 exp_name = 'SFreq'
 reps = 30

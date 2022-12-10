@@ -25,10 +25,10 @@ animal=  'Giuseppina'
 date= '2022-11-03'
 #date = input("date ")
 #note: if experiment type not known, put 'suite2p' instead
-experiment = '1'
+experiment = '2'
 exp_name = 'SFreq'
-file_number = '0'
-log_number = '0'
+file_number = '1'
+log_number = '1'
 plane_number = '1'
 plane_number_int = int(plane_number)
 nr_planes = 4

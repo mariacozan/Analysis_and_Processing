@@ -14,11 +14,11 @@ import math
 import numpy as np
 import matplotlib.pyplot as plt
 #import csv file
-
-csv_path = "D://DLC-projects//csv_output//Giuseppina//2022-11-03//Video7DLC_resnet101_FaceNov22shuffle1_99000.csv"
+video_number = str(5)
+csv_path = "D://DLC-projects//csv_output//Giuseppina//2022-11-03//Video"+video_number+"DLC_resnet101_FaceNov22shuffle1_99000.csv"
 import pandas as pd
 
-df = pd.read_csv(r'D://DLC-projects//csv_output//Giuseppina//2022-11-03//Video7DLC_resnet101_FaceNov22shuffle1_99000.csv')
+df = pd.read_csv(r'D://DLC-projects//csv_output//Giuseppina//2022-11-03//Video'+video_number+'DLC_resnet101_FaceNov22shuffle1_99000.csv')
 #print(df)
 
 #%%
@@ -52,6 +52,8 @@ for n in range(df.shape[0]):
 #%%
 
 Area = (distance_all_vertical/2)*(distance_all_horizontal/2)*math.pi
+plt.figure()
+plt.plot(Area)
 
 #%%
 #import functions2022_07_15 as fun
@@ -77,19 +79,19 @@ def running_info(filePath, th = 3, plot=False):
     
     return csvChannels,arduinoTime
 
-animal=  'Giuseppina'
+animal=  'Glaucus'
 #animal = input("animal name ")
 
-date= '2022-11-03'
+date= '2022-08-18'
 #date = input("date ")
 #note: if experiment type not known, put 'suite2p' instead
-experiment = '3'
+experiment = '1'
 exp_no = int(experiment)
 #experiment = input("experiment number(integer only) ")
 #experiment_int = int(experiment)
 #the file number of the NiDaq file, not alway experiment-1 because there might have been an issue with a previous acquisition etc
-file_number = '2'
-log_number = '2'
+file_number = '0'
+log_number = '0'
 filePathArduino = 'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//ArduinoInput'+file_number+'.csv'
 
 
@@ -188,3 +190,11 @@ time_stamps = running_behaviour[1]
 WheelMovement = DetectWheelMove(forward, backward, timestamps = time_stamps)
 
 speed = WheelMovement[0]
+#%%
+fig, axs = plt.subplots(2)
+axs[0].plot(Area)
+axs[1].plot(speed)
+plane_number = '1'
+exp_name = 'SFreq'
+np.save('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//speed.npy', speed)
+np.save('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//Area.npy', Area)
