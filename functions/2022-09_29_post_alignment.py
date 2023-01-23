@@ -14,21 +14,21 @@ from scipy.signal import butter,filtfilt,medfilt
 import csv
 import re
 import functions2022_07_15 as fun
-import extract_data as fun_ext
+import Data.Bonsai.extract_data as fun_ext
 import seaborn as sns
 sns.set()
 
 #%%input needed:specify experiment details
 
-animal=  'Giuseppina'
+animal=  'Hedes'
 #animal = input("animal name ")
-date= '2022-11-03'
+date= '2022-08-05'
 #date = input("date ")
 #note: if experiment type not known, put 'suite2p' instead
-experiment = '2'
+experiment = '1'
 exp_name = 'SFreq'
-file_number = '1'
-log_number = '1'
+file_number = '0'
+log_number = '0'
 plane_number = '1'
 plane_number_int = int(plane_number)
 nr_planes = 4
@@ -106,8 +106,8 @@ import pickle
 pickle.dump(fig, open('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//cell'+str(neuron)+'.pickle', 'wb'))
 #%%plotting traces to check if they are right
 aligned = aligned_array
-for neuron in range(aligned.shape[2]):
-#for neuron in range(7,8):       
+#for neuron in range(aligned.shape[2]):
+for neuron in range(7,8):       
             fig,ax = plt.subplots(6,4, sharex = True, sharey = True)
         
             for angle in range(0,4):
@@ -126,8 +126,8 @@ for neuron in range(aligned.shape[2]):
             plt.yticks([])
             #plt.xticks(ticks = [0.5,1, 2, 4, 8, 12, 16])
             fig.text(0.5, 0.04, "Time(s)     ROI-"+str(neuron), ha = "center")
-            plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//all_traces//cell'+str(neuron)+'.png')
-            plt.close()
+           # plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//all_traces//cell'+str(neuron)+'.png')
+           # plt.close()
 #%% plotting for orientation responses
    
 #for neuron in range(aligned.shape[2]):
@@ -156,7 +156,7 @@ for neuron in range(10,11):
     plt.yticks([])
             #plt.xticks(ticks = [0.5,1, 2, 4, 8, 12, 16])
     fig.text(0.5, 0.04, "Time(s)     ROI-"+str(neuron), ha = "center")
-    plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//all_traces//cell'+str(neuron)+'.png')
+  #  plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//all_traces//cell'+str(neuron)+'.png')
     #plt.close()
 
 

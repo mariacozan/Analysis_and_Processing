@@ -11,22 +11,22 @@ import matplotlib.pyplot as plt
 import os
 import pandas as pd
 import Analysis_and_Processing.functions.functions2022_07_15 as fun
-import pickle
 #%%
 #defining path
-animal=  'Glaucus'
-date= '2022-08-18'
+animal=  'Janus'
+date= '2023-01-19'
 
-exp_nr= 1
+exp_nr= 4
+
 experiment= str(exp_nr)
 
 #NDIN is the number in the NiDaq binary file, bear in mind this is not always experiment number - 1, always double check
 #NDIN= exp_nr-1
 #in case number is not exp number - 1 then put it in manually here:
 NDIN = exp_nr-1
-NDIN = 0
+NDIN = 1
 NiDaqInputNo= str(NDIN)
-ADIN = 0
+ADIN = 1
 ArduinoInputNo = str(ADIN)
 filePathInput='Z://RawData//'+animal+ '//'+date+ '//'+experiment+ '//NiDaqInput'+NiDaqInputNo+'.bin'
 #need to add custom titles for plots
@@ -63,11 +63,10 @@ def GetMetadataChannels(niDaqFilePath, numChannels = 4):
 #specify how many channels there are in the binary file, check in bonsai script
 numChannels= 5
 
-start_short = 20000
-end_short = 20500
+start_short = 0
+end_short = -1
 start_long = 50000
 end_long = 52000
-
 meta= GetMetadataChannels(filePathInput, numChannels=numChannels)
 tmeta= meta.T
 #plotting for7 channels with titles
@@ -193,27 +192,7 @@ if numChannels == 5:
     
     plt.subplots_adjust(wspace=0.7, hspace=0.7)
     
-    plt.savefig(filePathOutput500ms)
-    
-    fig_full, axs = plt.subplots(5, squeeze=True)
-    axs[0].plot(tmeta[0, :])
-    axs[0].title.set_text("Photodiode")
-    axs[1].plot(tmeta[1, :])
-    axs[1].title.set_text("Frame Clock")
-    axs[2].plot(tmeta[2, :])
-    axs[2].title.set_text("Pockel feedback")
-    axs[3].plot(tmeta[3, :])
-    axs[3].title.set_text("Piezo")
-    axs[4].plot(tmeta[4, :])
-    axs[4].title.set_text("Synchronisation signal")
-    plt.xlabel("Time(ms)")
-    for ax in axs.flat:
-        ax.label_outer()
-    
-    plt.subplots_adjust(wspace=0.7, hspace=0.7)
-    
     #plt.savefig(filePathOutput500ms)
-    pickle.dump(fig_full, open('Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//full_length.fig.pickle', 'wb'))
     
 #%%
 
@@ -236,7 +215,7 @@ fig,ax = plt.subplots()
 ax.plot(speed)
 plt.savefig(filePathOutputspeed)
 
-#%%
+
 f,ax = plt.subplots(channels[1].shape[0],sharex=True)
 for i in range(channels[1].shape[0]):
     ax[i].plot(channels[15000:15500,i])
@@ -245,11 +224,12 @@ plt.savefig(filePathOutputArduino)
 
 #%%checking log and photodiode match
 photodiode = meta[:,0]
-#using the function from above to put the times of the photodiode changes (in milliseconds!)
+
+
 photodiode_change = fun.DetectPhotodiodeChanges_new(photodiode,plot= True,kernel = 101,fs=1000, waitTime=10000)
 stim_on = photodiode_change[0::2]/1000
-
-log_number = str(NDIN)
+#%%
+log_number = str(0)
 filePathlog =  'Z://RawData//'+animal+ '//'+date+ '//'+experiment+'//Log'+log_number+'.csv'
 #getting stimulus identity
 Log_list = fun.GetStimulusInfo (filePathlog, props = ["Ori", "SFreq", "TFreq", "Contrast"])
@@ -260,10 +240,12 @@ log = np.array(pd.DataFrame(Log_list).values).astype(np.float64)
 
 
 if stim_on.shape[0] < log.shape[0]:
-    print ("photodiode signal lost somewhere, difference is "+ str(log.shape[0]-stim_on.shape[0]))
+    print ("photodiode signal lost somewhere")
 elif stim_on.shape[0] > log.shape[0]:
-    print ("too many photodiode changes, check trace for false changes, difference is "+ str(stim_on.shape[0]-log.shape[0]))
-else: print("all good")
+    print ("too many photodiode changes, check trace for false changes")
+else:
+    print("all good")
+    
 #%%
 #ax[1].plot(forward)
 #more optimised code for plotting for any number of channels but doesn't have titles for subplots yet

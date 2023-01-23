@@ -180,6 +180,7 @@ all_parameters = fun.Get_Stim_Identity(log = log, reps = 30, types_of_stim =24, 
 np.save('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//'+exp_name+'//all_parameters.npy', all_parameters)
 #%%behaviour
 running_behaviour = fun.running_info(filePathArduino, plot = True)
+#%%
 channels = running_behaviour[0]
 
 forward = channels[:,0]
@@ -201,7 +202,7 @@ niTime = np.array(range(0,meta.shape[0]))/1000
 syncNiDaq = tmeta[-1]
 syncArd = channels[:, -1]
 
-corrected_time = fun_ext.arduinoDelayCompensation(nidaqSync = syncNiDaq ,ardSync = syncArd, niTimes = niTime ,ardTimes = time_stamps)
+corrected_time = fun_ext.arduino_delay_compensation(nidaqSync = syncNiDaq ,ardSync = syncArd, niTimes = niTime ,ardTimes = time_stamps)
 corrected_time = np.around(corrected_time, decimals = 2)
 
 #%%
@@ -209,7 +210,7 @@ corrected_time = np.around(corrected_time, decimals = 2)
 zero = np.zeros((aligned.shape[1])).reshape(aligned.shape[1], )
 log = np.column_stack((log, zero))
 
-reps_behaviour = fun.behaviour_reps(log = log, types_of_stim = 24, reps = 30, protocol_type = "TFreq", speed = speed, time = corrected_time, stim_on = stim_on, stim_off = stim_off)
+reps_behaviour = fun.behaviour_reps(log = log, types_of_stim = 24, reps = 30, protocol_type = "SFreq", speed = speed, time = corrected_time, stim_on = stim_on, stim_off = stim_off)
 #the above function gives the reps for each orientation for running and for rest states
 #%%
 running = reps_behaviour[0]
@@ -384,36 +385,43 @@ for neuron in range(aligned.shape[2]):
 
 #%%plotting for other gratings protocol
 
-import cProfile, pstats, io
-pr = cProfile.Profile()
-pr.enable()
-for neuron in range(aligned.shape[2]):
-#for neuron in range(40,42):
+# import cProfile, pstats, io
+# pr = cProfile.Profile()
+# pr.enable()
+#for neuron in range(aligned.shape[2]):
+for neuron in range(57,58):
     fig,ax = plt.subplots(6,4, sharex = True, sharey = True)
     
-    
+    neuron1 = 16
+    neuron2 = 16
+    neuron3 = 16
+    neuron4 = 16
 #angle = 0
     for a in range(0,4):
-        ax[0,a].set_title(str(angles_str[a]) + "degrees", loc = "right")
+        # ax[0,0].set_title("increased", loc = "center")
+        # ax[0,1].set_title("decreased", loc = "center")
+        # ax[0,2].set_title("no change", loc = "center")
+        ax[0,a].set_title(str(angles_str[a])+"degrees")
     for angle in range(0,6):
-        
-                    ax[angle,0].plot(time,aligned[:,running[angle], neuron], c = "turquoise")
-                    ax[angle,0].plot(time,aligned[:,rest[angle], neuron], c = "plum", alpha = 0.2)
-                    ax[angle,0].plot(time, aligned[:,running[angle] , neuron].mean(axis = 1), c = "teal")
-                    ax[angle,0].plot(time, aligned[:,rest[angle] , neuron].mean(axis = 1), c = "purple")
+                    ax[angle,0].set_ylabel(str(sfreq_str[freq])+ " c/s", loc = "center", fontsize = 8)
+                    ax[angle,0].plot(time,aligned[:,running[angle], neuron1], c = "plum")
+                    ax[angle,0].plot(time,aligned[:,rest[angle], neuron1], c = "turquoise", alpha = 0.2)
+                    ax[angle,0].plot(time, aligned[:,running[angle] , neuron1].mean(axis = 1), c = "mediumvioletred")
+                    ax[angle,0].plot(time, aligned[:,rest[angle] , neuron1].mean(axis = 1), c = "teal")
                     #ax[0,angle].plot(time, aligned[:,all_oris[angle,:] , neuron], c = "lightgrey")
                     #ax[0,angle].plot(time, aligned[:,all_oris[angle,:] , neuron].mean(axis = 1), c = "black")
                     ax[angle,0].axvline(x=0, c="red", linestyle="dashed", linewidth = 1)
                     ax[angle,0].axvline(x=2, c="blue", linestyle="dashed", linewidth = 1)
                     ax[angle,0].xaxis.set_label_position('top')
-                    #ax[angle,0].set_xlabel(str(sfreq_str[angle]), loc = "left")
-                    ax[angle,0].set_xlabel(str(contrast_str[angle]), loc = "left")
+                    
+                    
+                    #ax[angle,0].set_xlabel(str(contrast_str[angle]), loc = "left")
                     
     for angle in range(6,12):
-                    ax[angle-6,1].plot(time,aligned[:,running[angle], neuron], c = "turquoise")
-                    ax[angle-6,1].plot(time,aligned[:,rest[angle], neuron], c = "plum", alpha = 0.2)
-                    ax[angle-6,1].plot(time, aligned[:,running[angle] , neuron].mean(axis = 1), c = "teal")
-                    ax[angle-6,1].plot(time, aligned[:,rest[angle] , neuron].mean(axis = 1), c = "purple")
+                    ax[angle-6,1].plot(time,aligned[:,running[angle], neuron2], c = "plum")
+                    ax[angle-6,1].plot(time,aligned[:,rest[angle], neuron2], c = "turquoise", alpha = 0.2)
+                    ax[angle-6,1].plot(time, aligned[:,running[angle] , neuron2].mean(axis = 1), c = "mediumvioletred")
+                    ax[angle-6,1].plot(time, aligned[:,rest[angle] , neuron2].mean(axis = 1), c = "teal")
                     #ax[0,angle].plot(time, aligned[:,all_oris[angle,:] , neuron], c = "lightgrey")
                     #ax[0,angle].plot(time, aligned[:,all_oris[angle,:] , neuron].mean(axis = 1), c = "black")
                     ax[angle-6,1].axvline(x=0, c="red", linestyle="dashed", linewidth = 1)
@@ -422,40 +430,40 @@ for neuron in range(aligned.shape[2]):
                     
                     
     for angle in range(12,18):
-                    #ax[angle-12,2].plot(time,aligned[:,running[angle], neuron], c = "turquoise")
-                    ax[angle-12,2].plot(time,aligned[:,rest[angle], neuron], c = "plum", alpha = 0.2)
-                    #ax[angle-12,2].plot(time, aligned[:,running[angle] , neuron].mean(axis = 1), c = "teal")
-                    ax[angle-12,2].plot(time, aligned[:,rest[angle] , neuron].mean(axis = 1), c = "purple")
+                    ax[angle-12,2].plot(time,aligned[:,running[angle], neuron2], c = "plum")
+                    ax[angle-12,2].plot(time,aligned[:,rest[angle], neuron2], c = "turquoise", alpha = 0.2)
+                    ax[angle-12,2].plot(time, aligned[:,running[angle] , neuron2].mean(axis = 1), c = "mediumvioletred")
+                    ax[angle-12,2].plot(time, aligned[:,rest[angle] , neuron2].mean(axis = 1), c = "teal")
                     #ax[0,angle].plot(time, aligned[:,all_oris[angle,:] , neuron], c = "lightgrey")
                     #ax[0,angle].plot(time, aligned[:,all_oris[angle,:] , neuron].mean(axis = 1), c = "black")
                     ax[angle-12,2].axvline(x=0, c="red", linestyle="dashed", linewidth = 1)
                     ax[angle-12,2].axvline(x=2, c="blue", linestyle="dashed", linewidth = 1)
                     ax[angle-12,2].xaxis.set_label_position('top')
-            
+    plt.yticks([])        
     
     for angle in range(18,24):
-                    ax[angle-18,3].plot(time,aligned[:,running[angle], neuron], c = "turquoise")
-                    ax[angle-18,3].plot(time,aligned[:,rest[angle], neuron], c = "plum", alpha = 0.2)
-                    ax[angle-18,3].plot(time, aligned[:,running[angle] , neuron].mean(axis = 1), c = "teal")
-                    ax[angle-18,3].plot(time, aligned[:,rest[angle] , neuron].mean(axis = 1), c = "purple")
+                    ax[angle-18,3].plot(time,aligned[:,running[angle], neuron4], c = "plum")
+                    ax[angle-18,3].plot(time,aligned[:,rest[angle], neuron4], c = "turquoise", alpha = 0.2)
+                    ax[angle-18,3].plot(time, aligned[:,running[angle] , neuron4].mean(axis = 1), c = "mediumvioletred")
+                    ax[angle-18,3].plot(time, aligned[:,rest[angle] , neuron4].mean(axis = 1), c = "teal")
                     #ax[0,angle].plot(time, aligned[:,all_oris[angle,:] , neuron], c = "lightgrey")
                     #ax[0,angle].plot(time, aligned[:,all_oris[angle,:] , neuron].mean(axis = 1), c = "black")
-                    ax[angle-18,3].axvline(x=0, c="red", linestyle="dashed", linewidth = 1)
+                    ax[angle-18,3].axvline(x=0, c="grey", linestyle="dashed", linewidth = 1)
                     ax[angle-18,3].axvline(x=2, c="blue", linestyle="dashed", linewidth = 1)
                     ax[angle-18,3].xaxis.set_label_position('top')
                    
                    
-    fig.text(0.5, 0.04, "Time(ms)", ha = "center")
+    fig.text(0.5, 0.04, "Time(s)", ha = "center")
                   
     
-    plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//Contrast//all_oris//test//running_vs_rest/cell'+str(neuron)+'.png')
+    # plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//plane'+plane_number+'//SFreq//all_oris//running_vs_rest_moreROIs//cell'+str(neuron)+'.png')
+    # plt.close()
+# pr.disable()
 
-pr.disable()
-
-s = io.StringIO()
-ps = pstats.Stats(pr, stream=s).sort_stats("cumtime")
-ps.print_stats()
-print(s.getvalue())
+# s = io.StringIO()
+# ps = pstats.Stats(pr, stream=s).sort_stats("cumtime")
+# ps.print_stats()
+# print(s.getvalue())
 #%%plotting all orientations and all temp frequencies
 
 import cProfile, pstats, io
@@ -665,12 +673,12 @@ for neuron in range(aligned.shape[2]):
         all_sem_m_rest[angle, neuron] = sem_minus_r
         rest_values[angle, neuron] = norm_r
       
-    ax.scatter(angles,running_values[:,neuron], c = "teal")
-    ax.plot(angles,running_values[:,neuron], c = "teal")
-    ax.fill_between(angles, all_sem_p_running[:,neuron], all_sem_m_running[:,neuron], alpha=0.5, color = "teal")
-    ax.scatter(angles,rest_values[:,neuron], c = "purple")
-    ax.plot(angles,rest_values[:,neuron], c = "purple")
-    ax.fill_between(angles, all_sem_p_rest[:,neuron], all_sem_m_rest[:,neuron], alpha=0.5, color = "purple")
+    ax.scatter(angles,running_values[:,neuron], c = "red")
+    ax.plot(angles,running_values[:,neuron], c = "red")
+    ax.fill_between(angles, all_sem_p_running[:,neuron], all_sem_m_running[:,neuron], alpha=0.5, color = "red")
+    ax.scatter(angles,rest_values[:,neuron], c = "black")
+    ax.plot(angles,rest_values[:,neuron], c = "black")
+    ax.fill_between(angles, all_sem_p_rest[:,neuron], all_sem_m_rest[:,neuron], alpha=0.5, color = "black")
     fig.text(0.5, 0.04, "Degrees", ha = "center")
     plt.savefig('D://Stim_aligned//'+animal+ '//'+date+ '//'+res+'//plane'+plane_number+'//tuning_curves//behaviour//cell'+str(neuron)+'.png')
 
